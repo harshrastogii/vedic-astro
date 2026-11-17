@@ -1,0 +1,12 @@
+{
+  "name": "vedic-astro-chat",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
+  "dependencies": {
+    "ai": "^7.0.176",
+    "zod": "^4.6.7"
+  }
+}
