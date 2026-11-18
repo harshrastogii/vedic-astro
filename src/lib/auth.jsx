@@ -57,6 +57,7 @@ export function AuthProvider({ children }) {
       provider: user?.app_metadata?.provider || '',
       async signIn(provider = 'google') {
         setNotice('');
+        rememberReturnTo(peekReturnTo() || '/');
         const { error } = await supabase.auth.signInWithOAuth({
           provider,
           options: {
@@ -83,6 +84,24 @@ export function AuthProvider({ children }) {
 }
 
 let signingOut = false;
+
+// Where to go after signing in. Kept in sessionStorage (this tab only) so it
+// survives the trip to Google/GitHub and back.
+const RETURN_KEY = 'vae.returnTo';
+const safePath = (p) => (typeof p === 'string' && p.startsWith('/') && !p.startsWith('//') && !p.startsWith('/login') && !p.startsWith('/account') ? p : null);
+export function rememberReturnTo(path) {
+  const p = safePath(path);
+  if (!p) return;
+  try { sessionStorage.setItem(RETURN_KEY, p); } catch { /* ignore */ }
+}
+function peekReturnTo() {
+  try { return safePath(sessionStorage.getItem(RETURN_KEY)); } catch { return null; }
+}
+export function takeReturnTo() {
+  const p = peekReturnTo();
+  try { sessionStorage.removeItem(RETURN_KEY); } catch { /* ignore */ }
+  return p;
+}
 
 export const useAuth = () => useContext(Ctx);
 

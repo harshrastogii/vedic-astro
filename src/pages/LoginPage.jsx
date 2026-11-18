@@ -1,12 +1,12 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../lib/auth.jsx';
+import { useAuth, takeReturnTo } from '../lib/auth.jsx';
 import SignInCard from '../components/SignInCard.jsx';
 import { BASE } from '../config.js';
 
 export default function LoginPage() {
   const { ready, user } = useAuth();
   if (!ready) return <div className="card">Loading…</div>;
-  if (user) return <Navigate to="/account" replace />;
+  if (user) return <Navigate to={takeReturnTo() || '/'} replace />;
   return (
     <div className="login-wrap">
       <SignInCard

@@ -73,7 +73,8 @@ export function ProfilesProvider({ children }) {
   const discardPending = useCallback(() => setLocal([]), []);
 
   const signedIn = !!user;
-  const profiles = signedIn ? (remote ?? []) : local;
+  // Signed out: nothing is shown (the whole site is behind sign-in).
+  const profiles = signedIn ? (remote ?? []) : [];
   const loading = signedIn && remote === null;
 
   const upsert = useCallback(async (p) => {
