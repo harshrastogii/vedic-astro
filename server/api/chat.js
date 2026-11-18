@@ -93,10 +93,17 @@ export async function POST(request) {
       model: PRIMARY_MODEL,
       system,
       messages,
-      maxOutputTokens: 2000,
+      // The free models "think" before answering. Keep thinking short and leave
+      // plenty of room, otherwise long chart questions can use the whole budget
+      // on thinking and return an empty answer.
+      reasoning: 'low',
+      maxOutputTokens: 8000,
       providerOptions: { gateway: { models: FALLBACK_MODELS } },
       abortSignal: request.signal,
       onError: ({ error }) => console.error('stream error', error),
+      onFinish: ({ finishReason, usage, text, response }) => console.log('chat finished', JSON.stringify({
+        finishReason, chars: text.length, model: response?.modelId, usage,
+      })),
     });
     return result.toTextStreamResponse({ headers: { ...cors(request), 'Cache-Control': 'no-store' } });
   } catch (err) {
