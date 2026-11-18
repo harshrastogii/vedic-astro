@@ -6,6 +6,7 @@ import { fmtDate, fmtTime, todayIn, untilLabel } from '../lib/tz.js';
 import PlacePicker from '../components/PlacePicker.jsx';
 import { Stat } from '../components/Common.jsx';
 import { SunIcon, MoonIcon } from '../components/Icons.jsx';
+import PageHead from '../components/PageHead.jsx';
 
 function shiftDate(s, days) {
   const [y, m, d] = s.split('-').map(Number);
@@ -36,6 +37,7 @@ export default function PanchangPage() {
 
   return (
     <>
+      <PageHead title="Panchang" subtitle="Tithi, nakshatra, yoga, karana and the day’s muhurtas for any date and place." pill={false} />
       <section className="card">
         <div className="form-grid" style={{ alignItems: 'end' }}>
           <div className="field">

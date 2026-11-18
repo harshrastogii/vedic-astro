@@ -1,111 +1,216 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useProfiles } from '../lib/store.jsx';
-import { kundli, PLANET_ORDER, fmtDeg, ordinal } from '../lib/astro.js';
-import { RASHIS, RASHI_LORD, NAKSHATRAS, NAKSHATRA_LORD, nakshatraOf, padaOf } from '../engine/index.js';
-import { fmtDateTime, utcOffsetLabel } from '../lib/tz.js';
-import { fmtCoord } from '../lib/places.js';
-import { ChartView } from '../components/Charts.jsx';
-import { NeedProfile, Stat } from '../components/Common.jsx';
+import { kundli, currentPeriod, doshas, nextIngress, PLANET_ORDER, ordinal } from '../lib/astro.js';
+import { RASHIS, panchang } from '../engine/index.js';
+import { fmtDate, fmtTime } from '../lib/tz.js';
+import { HOUSE_MEANING } from '../lib/symbols.js';
+import { ChartView, ChartLegend } from '../components/Charts.jsx';
+import { NeedProfile } from '../components/Common.jsx';
+import PageHead from '../components/PageHead.jsx';
+import { PlanetBadge, SignGlyph, SignLabel } from '../components/Astro.jsx';
+import {
+  ChatIcon, CompassIcon, CalendarIcon, ClockIcon, PinIcon, WheelIcon, HourglassIcon, TimerIcon,
+  ArrowRightIcon, HouseSmIcon, RetroIcon, BookIcon,
+} from '../components/Icons.jsx';
 
-function useChartStyle() {
-  const [style, setStyle] = useState(() => { try { return localStorage.getItem('vae.chartStyle') || 'north'; } catch { return 'north'; } });
-  useEffect(() => { try { localStorage.setItem('vae.chartStyle', style); } catch { /* ignore */ } }, [style]);
-  return [style, setStyle];
+function usePersisted(key, initial) {
+  const [v, setV] = useState(() => { try { return localStorage.getItem(key) || initial; } catch { return initial; } });
+  useEffect(() => { try { localStorage.setItem(key, v); } catch { /* ignore */ } }, [key, v]);
+  return [v, setV];
 }
+
+const VIEWS = [
+  { id: 'lagna', label: 'Lagna' },
+  { id: 'moon', label: 'Moon' },
+  { id: 'venus', label: 'Venus' },
+  { id: 'navamsa', label: 'Navamsa' },
+];
 
 export default function ChartPage() {
   const { active } = useProfiles();
-  const [style, setStyle] = useChartStyle();
+  const [style, setStyle] = usePersisted('vae.chartStyle', 'north');
+  const [view, setView] = useState('lagna');
   if (!active) return <NeedProfile what="your birth chart" />;
+  return <ChartBody profile={active} style={style} setStyle={setStyle} view={view} setView={setView} />;
+}
 
-  const k = kundli(active);
+function ChartBody({ profile, style, setStyle, view, setView }) {
+  const k = kundli(profile);
   const { chart, d9 } = k;
-  const tz = active.place.tz;
-  const asc = chart.ascendant;
-  const ascNak = nakshatraOf(asc);
+  const tz = profile.place.tz;
 
-  const styleToggle = (
-    <div className="seg" role="group" aria-label="Chart style">
-      <button className={style === 'north' ? 'on' : ''} onClick={() => setStyle('north')}>North</button>
-      <button className={style === 'south' ? 'on' : ''} onClick={() => setStyle('south')}>South</button>
-    </div>
-  );
+  const shown = useMemo(() => {
+    if (view === 'navamsa') return { chart: d9, ascSign: d9.ascendantSign, title: 'Navamsa' };
+    if (view === 'moon') return { chart: { ...chart, ascendantSign: chart.planets.Moon.sign }, ascSign: chart.ascendantSign, title: 'Moon chart' };
+    if (view === 'venus') return { chart: { ...chart, ascendantSign: chart.planets.Venus.sign }, ascSign: chart.ascendantSign, title: 'Venus chart' };
+    return { chart, ascSign: chart.ascendantSign, title: 'Lagna chart' };
+  }, [view, chart, d9]);
 
   return (
     <>
-      <section className="grid-4">
-        <Stat label="Born" value={fmtDateTime(k.birthDate, tz)} meta={`${utcOffsetLabel(k.birthDate, tz)} · ${tz}`} />
-        <Stat label="Place" value={active.place.name.split(',')[0]} meta={fmtCoord(active.place.lat, active.place.lon)} />
-        <Stat label="Ascendant" value={`${RASHIS[chart.ascendantSign]} ${fmtDeg(asc % 30)}`} meta={`${NAKSHATRAS[ascNak]} pada ${padaOf(asc)}`} />
-        <Stat label="Ayanamsa" value={fmtDeg(chart.ayanamsa)} meta="Lahiri (Chitrapaksha)" />
-      </section>
-
-      <section className="grid-2">
-        <div className="card">
-          <div className="card-head"><div><h2>Rasi (D1)</h2><div className="sub">Whole-sign houses from the ascendant</div></div>{styleToggle}</div>
-          <ChartView chart={chart} style={style} title="Rasi" />
+      <PageHead title="Lagna Chart">
+        <div className="seg lg" role="tablist" aria-label="Chart">
+          {VIEWS.map((v) => (
+            <button key={v.id} role="tab" aria-selected={view === v.id} className={view === v.id ? 'on' : ''} onClick={() => setView(v.id)}>{v.label}</button>
+          ))}
         </div>
-        <div className="card">
-          <div className="card-head"><div><h2>Navamsa (D9)</h2><div className="sub">Ascendant {d9.ascendantSignName}</div></div>{styleToggle}</div>
-          <ChartView chart={d9} style={style} title="Navamsa" />
-        </div>
-      </section>
+        <Link to={`/chat?q=${encodeURIComponent('Give me an overview of my birth chart: my ascendant, Moon sign, strongest planets and key themes.')}`} className="btn soft small">
+          <ChatIcon />Ask about this Kundli
+        </Link>
+      </PageHead>
 
-      <section className="card">
-        <div className="card-head"><h2>Planetary positions</h2><span className="sub">Sidereal · ᴿ = retrograde</span></div>
-        <div className="table-wrap">
-          <table className="t tnum">
-            <thead>
-              <tr><th>Planet</th><th>Sign</th><th>Degree</th><th>Nakshatra</th><th>Pada</th><th>Nak. lord</th><th>House</th><th>Sign lord</th><th>Navamsa</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={{ fontWeight: 700, color: 'var(--brand)' }}>Ascendant</td>
-                <td>{RASHIS[chart.ascendantSign]}</td>
-                <td>{fmtDeg(asc % 30)}</td>
-                <td>{NAKSHATRAS[ascNak]}</td>
-                <td>{padaOf(asc)}</td>
-                <td>{NAKSHATRA_LORD[ascNak]}</td>
-                <td>1st</td>
-                <td>{RASHI_LORD[chart.ascendantSign]}</td>
-                <td>{d9.ascendantSignName}</td>
-              </tr>
-              {PLANET_ORDER.map((name) => {
-                const p = chart.planets[name];
+      <div className="split">
+        <div className="col">
+          <section className="card chart-card">
+            <div className="seg" role="tablist" aria-label="Chart style">
+              {[['north', 'North'], ['south', 'South'], ['east', 'East']].map(([id, label]) => (
+                <button key={id} role="tab" aria-selected={style === id} className={style === id ? 'on' : ''} onClick={() => setStyle(id)}>{label}</button>
+              ))}
+            </div>
+            <ChartView chart={shown.chart} ascSign={shown.ascSign} style={style} title={shown.title} />
+            <ChartLegend />
+          </section>
+
+          <BirthCard profile={profile} k={k} tz={tz} />
+          <RightNow k={k} tz={tz} />
+          <BirthPanchang k={k} tz={tz} />
+        </div>
+
+        <div className="col">
+          <section className="card flush">
+            <div className="card-head"><h2><span className="ic"><CompassIcon /></span>Planet Positions</h2></div>
+            <ul className="rows">
+              <li>
+                <span className="planet-badge" style={{ background: 'var(--brand-soft)', color: 'var(--brand)', fontSize: 13 }}>As</span>
+                <span className="name">Ascendant</span>
+                <span className="right">
+                  <SignLabel sign={chart.ascendantSign}>{RASHIS[chart.ascendantSign]} {(chart.ascendant % 30).toFixed(1)}°</SignLabel>
+                  <span className="hs"><HouseSmIcon />1</span>
+                </span>
+              </li>
+              {PLANET_ORDER.map((n) => {
+                const p = chart.planets[n];
                 return (
-                  <tr key={name}>
-                    <td style={{ fontWeight: 700 }}>{name}{p.retrograde && name !== 'Rahu' && name !== 'Ketu' && <span style={{ color: 'var(--bad)' }}> ᴿ</span>}</td>
-                    <td>{p.signName}</td>
-                    <td>{fmtDeg(p.degree)}</td>
-                    <td>{p.nakshatraName}</td>
-                    <td>{p.pada}</td>
-                    <td>{p.nakshatraLord}</td>
-                    <td>{ordinal(p.house)}</td>
-                    <td>{p.signLord}</td>
-                    <td>{d9.planets[name].signName}</td>
-                  </tr>
+                  <li key={n}>
+                    <PlanetBadge planet={n} />
+                    <span className="name">{n}</span>
+                    {p.retrograde && <span className="pill warn tiny"><RetroIcon />Retrograde</span>}
+                    <span className="right">
+                      <SignLabel sign={p.sign}>{p.signName} {p.degree.toFixed(1)}°</SignLabel>
+                      <span className="hs" title={`${ordinal(p.house)} house`}><HouseSmIcon />{p.house}</span>
+                    </span>
+                  </li>
                 );
               })}
-            </tbody>
-          </table>
-        </div>
-      </section>
+            </ul>
+          </section>
 
-      <section className="card">
-        <div className="card-head"><h2>Houses</h2><span className="sub">Sign and occupants of each bhava</span></div>
-        <div className="grid-4">
-          {chart.houseToSign.map((sign, i) => {
-            const occ = PLANET_ORDER.filter((n) => chart.planets[n].sign === sign);
-            return (
-              <div key={i} className="stat">
-                <div className="label">{ordinal(i + 1)} house</div>
-                <div className="value" style={{ fontSize: 15 }}>{RASHIS[sign]}</div>
-                <div className="meta">Lord {RASHI_LORD[sign]}{occ.length ? ` · ${occ.join(', ')}` : ''}</div>
-              </div>
-            );
-          })}
+          <section className="card flush">
+            <div className="card-head"><h2><span className="ic"><HouseSmIcon /></span>Houses</h2><span className="sub">Whole-sign houses from your ascendant</span></div>
+            <div className="house-grid">
+              {chart.houseToSign.map((sign, i) => {
+                const occ = PLANET_ORDER.filter((n) => chart.planets[n].sign === sign);
+                return (
+                  <div key={i} className={`house-cell${i === 0 ? ' lagna' : ''}`}>
+                    <span className="hn"><span className="ic"><HouseSmIcon /></span>{i + 1}</span>
+                    <span className="sn"><SignGlyph sign={sign} />{RASHIS[sign]}</span>
+                    <span className="mean">{HOUSE_MEANING[i]}</span>
+                    {occ.length > 0 && <span className="occ">{occ.map((n) => <PlanetBadge key={n} planet={n} small />)}</span>}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
         </div>
-      </section>
+      </div>
     </>
+  );
+}
+
+function BirthCard({ profile, k, tz }) {
+  const { chart } = k;
+  return (
+    <section className="card birth-meta">
+      <div className="row" style={{ justifyContent: 'space-between' }}>
+        <span className="ln"><CalendarIcon />{fmtDate(k.birthDate, tz, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+        <span className="ln"><ClockIcon />{fmtTime(k.birthDate, tz)}</span>
+      </div>
+      <span className="ln"><PinIcon />{profile.place.name}</span>
+      <div className="trio">
+        <div><div className="v"><SignLabel sign={chart.ascendantSign} colored /></div><div className="k">lagna</div></div>
+        <div><div className="v"><SignLabel sign={chart.planets.Moon.sign} colored /></div><div className="k">moon</div></div>
+        <div><div className="v"><SignLabel sign={chart.planets.Sun.sign} colored /></div><div className="k">sun</div></div>
+      </div>
+    </section>
+  );
+}
+
+function RightNow({ k, tz }) {
+  const now = new Date();
+  const cur = currentPeriod(k.dasha, now);
+  const d = doshas(k, now);
+  const jup = useMemo(() => nextIngress('Jupiter', now), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const sat = d.sadeSati;
+  return (
+    <section className="card">
+      <div className="card-head"><h2>Right now</h2>
+        <Link className="link" to={`/chat?q=${encodeURIComponent('What is happening in my chart right now, with my current dasha and transits?')}`}><ChatIcon />Ask about this</Link>
+      </div>
+      <div className="now-list">
+        {cur && (
+          <div className="now-item">
+            <span className="ic"><WheelIcon /></span>
+            <div>
+              <h3>{cur.mahadasha.lord} Mahadasha · {cur.antardasha?.lord} Antardasha</h3>
+              <p>{cur.antardasha?.lord} Antardasha runs until {fmtDate(cur.antardasha.endDate, tz)}</p>
+              <Link className="link" to="/dasha">See the Dasha timeline <ArrowRightIcon /></Link>
+            </div>
+          </div>
+        )}
+        <div className="now-item">
+          <span className="ic"><HourglassIcon /></span>
+          <div>
+            <h3>{sat.present ? `Sade Sati: ${sat.phase.toLowerCase()} phase` : 'Saturn is quiet for you right now'}</h3>
+            <p>Saturn is in {sat.saturnSign}; your Moon is in {sat.moonSign}.</p>
+            <Link className="link" to="/doshas">See the Saturn check <ArrowRightIcon /></Link>
+          </div>
+        </div>
+        {jup && (
+          <div className="now-item">
+            <span className="ic"><TimerIcon /></span>
+            <div>
+              <h3>Jupiter moves into {RASHIS[jup.to]} on {fmtDate(jup.date, tz)}</h3>
+              <p>That falls in your {ordinal(((jup.to - k.chart.ascendantSign + 12) % 12) + 1)} house. Ask the AI what it may bring.</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function BirthPanchang({ k, tz }) {
+  const p = panchang(k.birthDate, { tz });
+  const items = [
+    ['Tithi', `${p.tithi.paksha} ${p.tithi.name}`],
+    ['Nakshatra', `${p.nakshatra.name} (pada ${p.nakshatra.pada})`],
+    ['Yoga', p.yoga.name],
+    ['Karana', p.karana.name],
+    ['Weekday', p.vaara.name],
+    ['Moon sign', p.moonSign],
+  ];
+  return (
+    <section className="card flush">
+      <div className="card-head"><h2><span className="ic" style={{ color: 'var(--good)' }}><BookIcon /></span>Panchang at Birth</h2></div>
+      <div className="house-grid" style={{ gridTemplateColumns: 'repeat(2, minmax(0,1fr))' }}>
+        {items.map(([kk, v], i) => (
+          <div key={kk} className="house-cell" style={{ minHeight: 0, borderRight: i % 2 === 0 ? '1px solid var(--line)' : 0, borderBottom: i < items.length - 2 ? '1px solid var(--line)' : 0 }}>
+            <span className="hn" style={{ textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700, fontSize: 12 }}>{kk}</span>
+            <span style={{ fontWeight: 600, fontSize: 16 }}>{v}</span>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

@@ -5,6 +5,7 @@ import { pratyantardashas } from '../engine/index.js';
 import { fmtDate } from '../lib/tz.js';
 import { NeedProfile, PlanetDot, Stat } from '../components/Common.jsx';
 import { ChevronIcon } from '../components/Icons.jsx';
+import PageHead from '../components/PageHead.jsx';
 
 const within = (now, p) => now >= p.startDate && now < p.endDate;
 const yrs = (y) => (y >= 1 ? `${y.toFixed(1)} yrs` : `${Math.round(y * 12)} mo`);
@@ -23,6 +24,7 @@ export default function DashaPage() {
 
   return (
     <>
+      <PageHead title="Vimshottari Dasha" subtitle="Your 120-year planetary periods, down to the pratyantar level." />
       <section className="grid-4">
         <Stat label="Birth nakshatra" value={dasha.nakshatraName} meta={`Lord ${dasha.startingLord}`} />
         <Stat label="Balance at birth" value={`${dasha.startingLord} ${yrs(dasha.balanceYears)}`} />

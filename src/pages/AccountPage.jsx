@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../lib/auth.jsx';
 import { useProfiles } from '../lib/store.jsx';
 import SignInCard from '../components/SignInCard.jsx';
+import PageHead from '../components/PageHead.jsx';
 
 export default function AccountPage() {
   const { ready, user, displayName, avatarUrl, githubLogin, signOut } = useAuth();
@@ -12,6 +13,7 @@ export default function AccountPage() {
   }
   return (
     <>
+      <PageHead title="Account" pill={false} />
       <section className="card profile-card">
         {avatarUrl ? <img src={avatarUrl} alt="" width="56" height="56" style={{ borderRadius: 16 }} /> : <span className="avatar">{displayName.slice(0, 1)}</span>}
         <div style={{ flex: 1, minWidth: 0 }}>

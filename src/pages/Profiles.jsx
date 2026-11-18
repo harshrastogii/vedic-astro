@@ -4,6 +4,7 @@ import { useProfiles } from '../lib/store.jsx';
 import { kundli } from '../lib/astro.js';
 import ProfileForm from '../components/ProfileForm.jsx';
 import { PlusIcon } from '../components/Icons.jsx';
+import PageHead from '../components/PageHead.jsx';
 
 export default function Profiles() {
   const { profiles, active, upsert, remove, setActive } = useProfiles();
@@ -14,6 +15,7 @@ export default function Profiles() {
 
   return (
     <>
+      <PageHead title="Profiles" subtitle="Birth details for you, family and friends." pill={false} />
       {adding && (
         <section className="card">
           <div className="card-head"><h2>New profile</h2></div>

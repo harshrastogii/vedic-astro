@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useProfiles } from '../lib/store.jsx';
 import { match } from '../lib/astro.js';
 import { NeedProfile } from '../components/Common.jsx';
+import PageHead from '../components/PageHead.jsx';
 
 const KOOTA_INFO = {
   varna: ['Varna', 'Spiritual and working temperament'],
@@ -59,6 +60,7 @@ export default function MatchingPage() {
 
   return (
     <>
+      <PageHead title="Kundli Match" subtitle="Ashtakoot compatibility out of 36 points." pill={false} />
       <section className="card">
         <div className="form-grid">
           <div className="field">

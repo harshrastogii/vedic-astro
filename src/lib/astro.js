@@ -76,3 +76,42 @@ export function ordinal(n) {
   const v = n % 100;
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
+
+/** Next time a planet changes sidereal sign after `from` (searched day by day, then refined). */
+export function nextIngress(planet, from = new Date(), maxDays = 1200) {
+  const signAt = (d) => {
+    const jd = julianDay(d);
+    return Math.floor(norm360(allPositions(jd)[planet] - lahiriAyanamsa(jd)) / 30) % 12;
+  };
+  const DAY = 86400000;
+  const s0 = signAt(from);
+  let prev = from.getTime();
+  for (let k = 1; k <= maxDays; k++) {
+    const t = from.getTime() + k * DAY;
+    const s = signAt(new Date(t));
+    if (s !== s0) {
+      let a = prev, b = t;
+      while (b - a > 60000) { const m = (a + b) / 2; if (signAt(new Date(m)) === s0) a = m; else b = m; }
+      return { date: new Date(b), from: s0, to: s };
+    }
+    prev = t;
+  }
+  return null;
+}
+
+/** Tara (star strength) of a day's Moon nakshatra counted from the birth nakshatra. */
+export const TARAS = [
+  { name: 'Janma', good: null, text: 'Your own birth star returns. A sensitive, inward day: go gently and avoid big risks.' },
+  { name: 'Sampat', good: true, text: 'The star of wealth. Good for money matters, purchases and practical gains.' },
+  { name: 'Vipat', good: false, text: 'The star of obstacles. Expect friction; keep plans simple and avoid new starts.' },
+  { name: 'Kshema', good: true, text: 'The star of wellbeing. Comfortable and secure; good for health and home.' },
+  { name: 'Pratyari', good: false, text: 'The star of opposition. Avoid confrontations and hold back from hard negotiations.' },
+  { name: 'Sadhaka', good: true, text: 'The star of accomplishment. Good for finishing work and pushing goals through.' },
+  { name: 'Vadha', good: false, text: 'The most challenging star. Rest, review and postpone anything important.' },
+  { name: 'Mitra', good: true, text: 'The friendly star. Good for meetings, cooperation and asking for help.' },
+  { name: 'Ati Mitra', good: true, text: 'The very friendly star. One of the best days of the cycle for any start.' },
+];
+export function taraFor(birthNak, dayNak) {
+  const count = ((dayNak - birthNak + 27) % 27) + 1;
+  return { count, ...TARAS[(count - 1) % 9] };
+}

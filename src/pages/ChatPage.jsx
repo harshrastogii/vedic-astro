@@ -41,6 +41,7 @@ function Chat({ active, profiles }) {
   const [showList, setShowList] = useState(false);
   const endRef = useRef(null);
   const abortRef = useRef(null);
+  const askedRef = useRef(false);
 
   const conv = convs.find((c) => c.id === convId);
   const convProfile = profiles.find((p) => p.id === conv?.profile_id) ?? active;
@@ -62,15 +63,24 @@ function Chat({ active, profiles }) {
   }, [convId]);
 
   useEffect(() => { endRef.current?.scrollIntoView({ block: 'end' }); }, [messages, streaming]);
+
+  // A question passed in the link (from the dashboard or chart page) starts a new chat.
+  useEffect(() => {
+    const q = params.get('q');
+    if (!q || askedRef.current) return;
+    askedRef.current = true;
+    setParams({}, { replace: true });
+    send(q, [], true);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  async function send(text, base = messages) {
+  async function send(text, base = messages, fresh = false) {
     const q = text.trim();
     if (!q || busy) return;
     setBusy(true); setError(''); setDraft('');
 
-    let id = convId;
-    let profileForChat = convProfile;
+    let id = fresh ? null : convId;
+    let profileForChat = id ? convProfile : active;
     try {
       if (!id) {
         profileForChat = active;

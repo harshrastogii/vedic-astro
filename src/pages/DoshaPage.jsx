@@ -2,6 +2,7 @@ import { useProfiles } from '../lib/store.jsx';
 import { kundli, doshas, ordinal } from '../lib/astro.js';
 import { NeedProfile } from '../components/Common.jsx';
 import { CheckIcon, XIcon } from '../components/Icons.jsx';
+import PageHead from '../components/PageHead.jsx';
 
 function Verdict({ present, cancelled, label }) {
   if (present) return <span className="pill bad">{label ?? 'Present'}</span>;
@@ -30,6 +31,8 @@ export default function DoshaPage() {
   const { mangal, kalsarp, pitra, sadeSati } = d;
 
   return (
+    <>
+    <PageHead title="Doshas" subtitle="Mangal, Kaal Sarp, Pitra and Sade Sati checks from your chart." />
     <section className="grid-2">
       <article className="card">
         <div className="card-head">
@@ -94,5 +97,6 @@ export default function DoshaPage() {
         </dl>
       </article>
     </section>
+    </>
   );
 }

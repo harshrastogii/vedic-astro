@@ -1,16 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useProfiles } from '../lib/store.jsx';
 import { Orbit } from './Icons.jsx';
+import { PLANET_GLYPH, PLANET_TONE } from '../lib/symbols.js';
 
-export const PLANET_TONE = {
-  Sun: ['#fdecd3', '#b4610b'], Moon: ['#e9eef6', '#4a5d7a'], Mars: ['#fbe3dc', '#b33a22'],
-  Mercury: ['#e2f3e8', '#2c7a4b'], Jupiter: ['#fbf0d2', '#9a6a0c'], Venus: ['#f7e6f0', '#9b3d72'],
-  Saturn: ['#e6e7f3', '#3f4380'], Rahu: ['#e9e6e1', '#5b5249'], Ketu: ['#efe7dd', '#7a5a35'],
-};
 
 export function PlanetDot({ planet, size = 40 }) {
-  const [bg, fg] = PLANET_TONE[planet] ?? ['#eee', '#333'];
-  return <span className="planet-dot" style={{ background: bg, color: fg, width: size, height: size }}>{planet.slice(0, 2)}</span>;
+  const [bg, fg] = PLANET_TONE[planet] ?? ['#666', '#fff'];
+  return <span className="planet-dot glyph" style={{ background: bg, color: fg, width: size, height: size }} title={planet}>{PLANET_GLYPH[planet]}</span>;
 }
 
 export function NeedProfile({ what = 'this page' }) {
