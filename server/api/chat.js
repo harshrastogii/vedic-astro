@@ -16,7 +16,7 @@ const FALLBACK_MODELS = (process.env.CHAT_FALLBACK_MODELS || 'reflection/beam-fr
 
 const MAX_HISTORY = 30;           // messages sent to the model
 const MAX_MESSAGE_CHARS = 8000;   // per message
-const MAX_CONTEXT_CHARS = 20000;  // chart summary
+const MAX_CONTEXT_CHARS = 30000;  // chart summary
 
 function cors(request) {
   const origin = request.headers.get('origin') || '';
@@ -61,6 +61,19 @@ How to answer:
 - For health, legal or money decisions, say astrology is not a substitute for a qualified professional.
 - Keep answers focused: short paragraphs or a few bullet points, usually under 300 words unless asked for more.`;
 
+const REPORT_PROMPT = `You are an experienced Vedic astrologer writing a personal report inside the "Vedic Astro" app.
+The app has already calculated everything: the chart data and the REPORT FACTS below are authoritative.
+
+Rules:
+- Use only the placements, verdicts, dates and yogas given. Never invent positions, yogas or dates.
+- Do not contradict the report's verdict.
+- Structure: a short opening paragraph with the overall picture, then 3–5 sections with "## " headings
+  (for example: what it means, how it shows up in life, timing, practical guidance and remedies), ending with a brief summary.
+- Plain, warm English. Explain each Sanskrit term briefly the first time.
+- Balanced and non-fatalistic: say what helps, not just what is difficult. Traditional remedies may be suggested as optional.
+- For health, legal or financial decisions, note that astrology is not a substitute for a professional.
+- Length: about 450–700 words.`;
+
 export function OPTIONS(request) {
   return new Response(null, { status: 204, headers: cors(request) });
 }
@@ -86,7 +99,8 @@ export async function POST(request) {
   if (!messages.length || messages.at(-1).role !== 'user') return json(request, 400, { error: 'No question to answer.' });
 
   const context = typeof body.context === 'string' ? body.context.slice(0, MAX_CONTEXT_CHARS) : '';
-  const system = context ? `${SYSTEM_PROMPT}\n\n--- CHART DATA ---\n${context}` : SYSTEM_PROMPT;
+  const base = body.mode === 'report' ? REPORT_PROMPT : SYSTEM_PROMPT;
+  const system = context ? `${base}\n\n--- CHART DATA ---\n${context}` : base;
 
   try {
     const result = streamText({

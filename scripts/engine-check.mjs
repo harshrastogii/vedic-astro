@@ -104,5 +104,26 @@ ok('Vashya: Sagittarius halves differ; Leo–Scorpio scores 0',
 const tr = E.ashtakoot({ sign: 0, nakshatra: 0 }, { sign: 0, nakshatra: 2 }).kootas.tara;
 ok('Tara scores each direction separately (1.5 + 0)', tr.points === 1.5 && !tr.groomToBride && tr.brideToGroom);
 
+// 12. Reports: Sade Sati for a Sagittarius Moon ran Nov 2014 – Jan 2023 (Lahiri, widely published)
+const { saturnPeriods, sadeSatiCycles, buildReport, REPORT_TYPES } = await import('../src/lib/reports.js');
+const cyc = sadeSatiCycles(saturnPeriods(8, new Date('1990-01-01T00:00Z'), 40)).find((c) => c.start.getUTCFullYear() === 2014);
+ok('Sade Sati (Sagittarius Moon) Nov 2014 – Jan 2023', cyc && cyc.start.getUTCMonth() === 10 && cyc.end.getUTCFullYear() === 2023 && cyc.end.getUTCMonth() === 0,
+  cyc ? `${cyc.start.toISOString().slice(0, 10)} → ${cyc.end.toISOString().slice(0, 10)}` : 'not found');
+
+// 13. Yogas: Taurus ascendant → Saturn is yogakaraka (rules 9 & 10); Venus exalted in Pisces in a kendra → Malavya
+const fake = (asc, pl) => ({ ascendantSign: asc, planets: Object.fromEntries(Object.entries(pl).map(([n, s]) => [n, { sign: s, house: ((s - asc + 12) % 12) + 1 }])) });
+const base = { Sun: 0, Moon: 3, Mars: 5, Mercury: 0, Jupiter: 8, Venus: 11, Saturn: 4, Rahu: 2, Ketu: 8 };
+const y1 = E.findYogas(fake(1, base)).map((y) => y.name);
+const y2 = E.findYogas(fake(2, base)).map((y) => y.name);
+ok('Yogakaraka for Taurus; Malavya for exalted Venus in a kendra', y1.includes('Raj Yoga (Yogakaraka)') && y2.includes('Malavya Yoga'), `${y1.length} / ${y2.length} yogas`);
+
+// 14. Gemstones: Gemini ascendant life stone is Emerald (Mercury)
+ok('Gemini ascendant life stone = Emerald', E.gemstoneAdvice(fake(2, base)).recommendations[0].stone.startsWith('Emerald'));
+
+// 15. All nine reports build without errors
+const prof = { id: 't', name: 'T', gender: 'male', date: '2001-04-04', time: '11:14', place: { name: 'Delhi', lat: 28.59, lon: 77.05, tz: 'Asia/Kolkata' } };
+let built = 0; for (const t of REPORT_TYPES) { const r = buildReport(t.id, prof); if (r.verdict && r.facts) built++; }
+ok('All nine reports build', built === 9, `${built}/9`);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

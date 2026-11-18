@@ -4,20 +4,21 @@ import { useAuth } from '../lib/auth.jsx';
 import { BASE } from '../config.js';
 import { getTheme, setTheme } from '../lib/theme.js';
 import { MenuIcon, XIcon, MoonStarIcon, SunIcon } from './Icons.jsx';
+import { REPORT_TYPES } from '../lib/reports.js';
 
 export const APP_NAME = 'Vedic Astro';
 
 const NAV = [
   { to: '/', label: 'Dashboard', end: true },
   { to: '/chat', label: 'Chat' },
+  { to: '/reports', label: 'Reports' },
   { to: '/matching', label: 'Kundli Match' },
   { to: '/chart', label: 'Lagna Chart' },
   { to: '/dasha', label: 'Dasha' },
   { to: '/panchang', label: 'Panchang' },
-  { to: '/doshas', label: 'Doshas' },
 ];
 
-const TITLES = { ...Object.fromEntries(NAV.map((n) => [n.to, n.label])), '/account': 'Account', '/profiles': 'Profiles' };
+const TITLES = { ...Object.fromEntries(NAV.map((n) => [n.to, n.label])), '/account': 'Account', '/profiles': 'Profiles', '/doshas': 'Doshas' };
 
 export default function Layout() {
   const [open, setOpen] = useState(false);
@@ -28,7 +29,9 @@ export default function Layout() {
   useEffect(() => setOpen(false), [pathname]);
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
   useEffect(() => {
-    document.title = pathname === '/' ? APP_NAME : `${TITLES[pathname] ?? APP_NAME} | ${APP_NAME}`;
+    const report = pathname.startsWith('/reports/') && REPORT_TYPES.find((t) => pathname.endsWith(`/${t.id}`));
+    const name = TITLES[pathname] ?? (report ? report.title : null);
+    document.title = name ? `${name} | ${APP_NAME}` : APP_NAME;
   }, [pathname]);
 
   const toggleTheme = () => {

@@ -9,3 +9,4 @@ export * from './dosha.js';
 export * from './matching.js';
 export * from './divisional.js';
 export * from './panchang-day.js';
+export * from './yogas.js';

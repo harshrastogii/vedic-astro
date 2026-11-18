@@ -31,6 +31,11 @@ export const BookIcon = () => (<svg {...base}><path d="M3 5.5A2.5 2.5 0 0 1 5.5 
 export const RetroIcon = () => (<svg {...base}><path d="M4 12a8 8 0 1 0 2.3-5.6" /><path d="M4 4v4h4" /></svg>);
 export const BriefcaseIcon = () => (<svg {...base}><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18" /></svg>);
 
+export const GemIcon = () => (<svg {...base}><path d="M6 3h12l3 6-9 12L3 9z" /><path d="M3 9h18M9 3l3 6 3-6M12 21 9 9M12 21l3-12" /></svg>);
+export const CrownIcon = () => (<svg {...base}><path d="M3 7l4.5 4L12 4l4.5 7L21 7l-2 12H5z" /><path d="M5 19h14" /></svg>);
+export const PlaneIcon = () => (<svg {...base}><path d="M10.5 13.5 3 11l1.5-1.5 7.5 1L16.5 6A2 2 0 0 1 19.3 8.8L14.5 13.5l1 7.5L14 22.5l-2.5-7.5-3 3V21l-1.5 1.5-1-3.5-3.5-1L4 16.5h2.5l3-3" /></svg>);
+export const ReportIcon = () => (<svg {...base}><path d="M7 3h7l5 5v13H7z" /><path d="M14 3v5h5M10 12h6M10 16h6" /></svg>);
+
 export function Orbit({ className }) {
   return (
     <svg viewBox="0 0 200 200" className={className} aria-hidden="true">

@@ -6,6 +6,8 @@ import { ProfilesProvider } from './lib/store.jsx';
 import { AuthProvider } from './lib/auth.jsx';
 import ChatPage from './pages/ChatPage.jsx';
 import AccountPage from './pages/AccountPage.jsx';
+import ReportsPage from './pages/ReportsPage.jsx';
+import ReportPage from './pages/ReportPage.jsx';
 import Layout from './components/Layout.jsx';
 import Home from './pages/Home.jsx';
 import Profiles from './pages/Profiles.jsx';
@@ -25,6 +27,8 @@ const router = createBrowserRouter([
       { path: 'profiles', element: <Profiles /> },
       { path: 'chat', element: <ChatPage /> },
       { path: 'account', element: <AccountPage /> },
+      { path: 'reports', element: <ReportsPage /> },
+      { path: 'reports/:type', element: <ReportPage /> },
       { path: 'chart', element: <ChartPage /> },
       { path: 'dasha', element: <DashaPage /> },
       { path: 'panchang', element: <PanchangPage /> },

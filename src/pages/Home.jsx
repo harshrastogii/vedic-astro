@@ -159,6 +159,11 @@ function Dashboard({ profile }) {
             </Link>
           )}
 
+          <Link to="/reports" className="card" style={{ display: 'grid', gap: 10 }}>
+            <div className="card-head" style={{ marginBottom: 0 }}><h2>Your reports</h2><ArrowRightIcon /></div>
+            <span className="muted">Mangal Dosh, Love &amp; Romance, Saturn &amp; Sade Sati, Dasha Prediction, Gemstones, Kaal Sarp, Raj Yog, Pitra Dosh and Videsh Yog.</span>
+          </Link>
+
           <Link to="/profiles" className="card" style={{ display: 'grid', gap: 4 }}>
             <div className="card-head" style={{ marginBottom: 0 }}><h2>Family &amp; Friends</h2><ArrowRightIcon /></div>
             <span className="muted">{profiles.length} {profiles.length === 1 ? 'profile' : 'profiles'} saved</span>
