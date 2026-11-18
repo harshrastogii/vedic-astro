@@ -16,12 +16,13 @@ const GoogleMark = () => (
 );
 
 export default function SignInCard({ reason, title = 'Sign in' }) {
-  const { signIn } = useAuth();
+  const { signIn, notice } = useAuth();
   const [err, setErr] = useState('');
   const go = (p) => signIn(p).catch((e) => setErr(e.message));
   return (
     <div className="card empty">
       <h2 style={{ fontSize: 20 }}>{title}</h2>
+      {notice && <div className="pill warn" role="status" style={{ whiteSpace: 'normal' }}>{notice}</div>}
       <p className="muted" style={{ maxWidth: 460 }}>{reason}</p>
       <div className="signin-buttons">
         <button className="btn google" onClick={() => go('google')}><GoogleMark />Continue with Google</button>

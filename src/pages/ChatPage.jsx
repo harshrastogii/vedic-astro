@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useAuth } from '../lib/auth.jsx';
+import { useAuth, authedFetch } from '../lib/auth.jsx';
 import { useProfiles } from '../lib/store.jsx';
 import { supabase } from '../lib/supabase.js';
 import { chartContext } from '../lib/chartContext.js';
@@ -29,7 +29,6 @@ export default function ChatPage() {
 }
 
 function Chat({ active, profiles }) {
-  const { session } = useAuth();
   const [params, setParams] = useSearchParams();
   const convId = params.get('c');
   const [convs, setConvs] = useState([]);
@@ -100,9 +99,9 @@ function Chat({ active, profiles }) {
 
       const ctrl = new AbortController();
       abortRef.current = ctrl;
-      const res = await fetch(CHAT_API_URL, {
+      const res = await authedFetch(CHAT_API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: history.map(({ role, content }) => ({ role, content })),
           context: chartContext(profileForChat),

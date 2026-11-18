@@ -66,7 +66,10 @@ export default function Layout() {
         </div>
       </header>
       {open && <nav className="mobile-menu" aria-label="Main">{links}<NavLink to="/profiles">Profiles</NavLink></nav>}
-      <main className="page">
+      {/* Re-mount every page when the signed-in person changes (sign-out, or a
+          different account signed in from another tab), so nothing from the
+          previous account can stay on screen. */}
+      <main className="page" key={user?.id ?? 'guest'}>
         <Outlet />
       </main>
     </>

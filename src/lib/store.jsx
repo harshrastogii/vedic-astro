@@ -29,7 +29,11 @@ const sameBirth = (a, b) => a.name === b.name && a.date === b.date && a.time ===
 const Ctx = createContext(null);
 
 export function ProfilesProvider({ children }) {
-  const { user, ready } = useAuth();
+  const { user: authUser, ready } = useAuth();
+  // Depend on the account id, not the user object: the object is replaced on
+  // every hourly token refresh, which must not reload or reset anything.
+  const userId = authUser?.id ?? null;
+  const user = userId ? authUser : null;
   const [local, setLocal] = useState(() => load(KEY, []));
   const [remote, setRemote] = useState(null); // null = not loaded
   const [activeId, setActiveId] = useState(() => load(ACTIVE, null));
@@ -50,12 +54,12 @@ export function ProfilesProvider({ children }) {
       setRemote(data.map(fromRow));
     })();
     return () => { cancelled = true; };
-  }, [user, ready]);
+  }, [userId, ready]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Browser-only profiles waiting for the signed-in person's decision.
   const pending = useMemo(
     () => (user && remote ? local.filter((p) => !remote.some((r) => sameBirth(r, p))) : []),
-    [user, remote, local],
+    [userId, remote, local], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const importPending = useCallback(async () => {

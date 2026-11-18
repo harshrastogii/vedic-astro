@@ -34,11 +34,15 @@ function json(request, status, body) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...cors(request) } });
 }
 
+// Returns the user, null for an invalid/expired token, or throws if Supabase
+// itself can't be reached (so a network blip isn't reported as "signed out").
 async function getUser(token) {
   const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
     headers: { Authorization: `Bearer ${token}`, apikey: SUPABASE_KEY },
+    signal: AbortSignal.timeout(8000),
   });
-  if (!res.ok) return null;
+  if (res.status === 401 || res.status === 403) return null;
+  if (!res.ok) throw new Error(`auth server ${res.status}`);
   return res.json();
 }
 
@@ -93,7 +97,11 @@ export async function POST(request) {
   const token = (request.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
   if (!token) return json(request, 401, { error: 'Please sign in to chat.' });
 
-  const user = await getUser(token);
+  let user;
+  try { user = await getUser(token); } catch (err) {
+    console.error('auth check failed', err);
+    return json(request, 503, { error: 'Could not check your sign-in just now. Please try again in a moment.' });
+  }
   if (!user) return json(request, 401, { error: 'Your session has expired. Please sign in again.' });
 
   let body;

@@ -73,7 +73,7 @@ function Dashboard({ profile }) {
     if (!user) { setLastConv(null); return; }
     supabase.from('conversations').select('id,title').order('updated_at', { ascending: false }).limit(1)
       .then(({ data }) => setLastConv(data?.[0] ?? null));
-  }, [user]);
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const ask = (text) => text.trim() && navigate(`/chat?q=${encodeURIComponent(text.trim())}`);
   const chips = [

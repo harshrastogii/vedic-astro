@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useProfiles } from '../lib/store.jsx';
-import { useAuth } from '../lib/auth.jsx';
+import { useAuth, authedFetch } from '../lib/auth.jsx';
 import { supabase } from '../lib/supabase.js';
 import { REPORT_TYPES, buildReport } from '../lib/reports.js';
 import { chartContext } from '../lib/chartContext.js';
@@ -72,7 +72,7 @@ export default function ReportPage() {
 const inputKey = (p) => [p.date, p.time, p.place.lat, p.place.lon, 'v1'].join('|');
 
 function AiReading({ report, profile }) {
-  const { user, session } = useAuth();
+  const { user } = useAuth();
   const [saved, setSaved] = useState(null); // { content, created_at }
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
@@ -85,16 +85,16 @@ function AiReading({ report, profile }) {
     supabase.from('reports').select('content, input_key, created_at').eq('profile_id', profile.id).eq('type', report.id).maybeSingle()
       .then(({ data }) => { if (data && data.input_key === inputKey(profile)) setSaved(data); });
     return () => abortRef.current?.abort();
-  }, [user, profile, report.id]);
+  }, [user?.id, profile, report.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function generate() {
     setBusy(true); setError(''); setText('');
     try {
       const ctrl = new AbortController();
       abortRef.current = ctrl;
-      const res = await fetch(CHAT_API_URL, {
+      const res = await authedFetch(CHAT_API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           mode: 'report',
           messages: [{ role: 'user', content: `Write my ${report.title} report.` }],
