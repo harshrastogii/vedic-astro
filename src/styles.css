@@ -121,6 +121,7 @@ p { margin: 0; }
 .user-pop a:hover, .user-pop button:hover, .user-pop a:focus-visible, .user-pop button:focus-visible { background: var(--surface-2); }
 .user-pop button { color: var(--bad); }
 .account-head { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.account-info { flex: 1 1 0; min-width: 0; }
 .account-photo { border-radius: 18px; object-fit: cover; flex: none; }
 .details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 0; }
 .details-grid > div { background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
@@ -137,7 +138,7 @@ p { margin: 0; }
 @media (max-width: 1080px) {
   .navlinks { display: none; }
   .menu-toggle { display: grid; }
-  .topnav { justify-content: space-between; padding: 0 16px; }
+  .topnav { justify-content: space-between; padding: 0 16px; --nav-pad-x: 16px; }
   .mobile-menu {
     display: grid; position: fixed; top: 65px; left: 0; right: 0; z-index: 29; padding: 10px 12px 16px;
     background: var(--surface); border-bottom: 1px solid var(--line-2); box-shadow: 0 20px 40px rgba(0,0,0,.35);
@@ -265,6 +266,8 @@ table.t { width: 100%; border-collapse: collapse; font-size: 14px; }
 table.t th { text-align: left; font-size: 12px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; padding: 8px 10px; border-bottom: 1px solid var(--line-2); white-space: nowrap; }
 table.t td { padding: 12px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
 table.t tr:last-child td { border-bottom: 0; }
+table.t td.c0 { white-space: nowrap; font-weight: 600; }
+table.t td.cx { white-space: normal; }
 
 .rows { list-style: none; margin: 0; padding: 0; }
 .rows > li { display: flex; align-items: center; gap: 14px; padding: 14px 24px; border-top: 1px solid var(--line); min-width: 0; }
@@ -387,10 +390,6 @@ table.t tr:last-child td { border-bottom: 0; }
 .signin-buttons .btn svg { width: 18px; height: 18px; flex: none; }
 .btn.google { background: #fff; color: #1f1f1f; border: 1px solid #dadce0; }
 .btn.google:hover { background: #f8f9fa; }
-.family-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
-.family-row:first-child { border-top: 0; }
-.family-add { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; }
-@media (max-width: 640px) { .family-add { grid-template-columns: 1fr; } }
 .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .score-ring { width: 150px; height: 150px; flex: none; }
 .list-reset { list-style: none; margin: 0; padding: 0; }
@@ -482,3 +481,111 @@ table.t tr:last-child td { border-bottom: 0; }
 .report-card .pill { white-space: normal; text-align: right; }
 .md h4 { font-size: 16px; margin: 16px 0 6px; color: var(--brand); }
 @media (prefers-reduced-motion: reduce) { .report-card:hover { transform: none; } }
+
+/* ---------- phones & small tablets ---------- */
+.md-dates { display: grid; gap: 2px; text-align: right; }
+.place-line { display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 100%; }
+.place-line .pin { width: 18px; height: 18px; display: inline-grid; flex: none; }
+.place-line .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Typing in a box smaller than 16px makes iPhones zoom the whole page in. */
+.input, .select, textarea.input, .profile-pill select { font-size: 16px; }
+
+/* Readable minimums for the smallest text. */
+.profile-pill .dot { font-size: 12px; }
+.pill.tiny { font-size: 11.5px; }
+.timeline-strip .t { font-size: 12px; }
+
+@media (max-width: 760px) {
+  /* Bigger tap areas (about 40px) without changing how things look. */
+  .seg button { min-height: 40px; }
+  .profile-pill { min-height: 40px; }
+  .link { padding-block: 8px; margin-block: -8px; }
+  .table-wrap { margin: 0 -18px; padding: 0 18px; }
+}
+
+@media (max-width: 560px) {
+  /* Dasha: dates move under the period name instead of colliding with it. */
+  .dasha-row > button { grid-template-columns: 36px minmax(0, 1fr) 18px; gap: 6px 12px; padding: 12px 14px; }
+  .dasha-row > button > .chev { grid-column: 3; grid-row: 1 / span 2; }
+  .dasha-row > button > .md-dates { grid-column: 2; grid-row: 2; display: flex; flex-wrap: wrap; gap: 0 10px; text-align: left; }
+
+  /* Sub-periods: names stay on one line; dates sit beside or just below. */
+  .sub-list { padding: 6px 8px 10px; }
+  .sub-item { grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; padding: 9px 10px; }
+  .sub-item > span:first-child { white-space: nowrap; }
+  .sub-item > span:last-child { text-align: right; font-size: 13px; }
+  .pd-list { padding-left: 12px; font-size: 12.5px; }
+  .pd-list div span:first-child { white-space: nowrap; }
+
+  /* Planet list: retrograde shows as its icon so the house number fits. */
+  .rows > li .pill.tiny .lbl { display: none; }
+  .rows > li .pill.tiny { padding: 4px; }
+  .rows > li .name { font-size: 15px; }
+
+  /* Profile cards: details on full width, buttons on their own row. */
+  .profile-card { flex-wrap: wrap; align-items: flex-start; }
+  .profile-card > div:nth-child(2) { flex: 1 1 0; }
+  .profile-card > .row { width: 100%; justify-content: flex-end; }
+
+  /* Account: the Sign out button wraps below instead of squeezing the email. */
+  .account-head { align-items: flex-start; }
+  .account-head { gap: 14px; }
+  .account-head .account-photo, .account-head > .avatar { width: 52px !important; height: 52px !important; }
+  .account-info { flex: 1 1 calc(100% - 70px); }
+  .account-head > .btn { width: 100%; justify-content: center; }
+  .details-grid { grid-template-columns: 1fr 1fr; }
+  .details-grid > div:nth-child(3) { grid-column: 1 / -1; }
+
+  /* Kundli match table fits the screen. */
+  table.t .bar-col { display: none; }
+  table.t td.koota-desc { font-size: 13px; }
+  table.t th, table.t td { padding-inline: 8px; }
+}
+@media (max-width: 480px) {
+  /* The chart drawing shrinks on phones; keep its small labels legible. */
+  .chart-svg .hlabel { font-size: 10.5px; }
+  .chart-svg .sno { font-size: 13.5px; }
+  .chart-svg .pl { font-size: 15px; }
+  .chart-svg .pl.sm { font-size: 13.5px; }
+}
+/* Cards built as grids must never grow wider than the screen. */
+.hero, .card { min-width: 0; }
+.hero { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 560px) {
+  .hero { padding: 20px; gap: 16px; }
+  .hero h2 { font-size: 22px; }
+  .hero .lead { font-size: 16px; }
+  .chip { white-space: normal; text-align: left; max-width: 100%; }
+}
+@media (max-width: 380px) {
+  .rows > li { padding: 11px 12px; gap: 8px; }
+  .rows > li .right { gap: 8px; font-size: 13px; }
+  .rows > li .name { font-size: 14px; }
+  .ask-box { padding-left: 14px; }
+}
+
+/* Native-feeling touch behaviour on phones. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+a, button, select, input, textarea, [role=button] { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+/* Keep content clear of the notch and home bar (iPhone landscape / full-screen). */
+.topnav { padding-left: max(var(--nav-pad-x, 24px), env(safe-area-inset-left)); padding-right: max(var(--nav-pad-x, 24px), env(safe-area-inset-right)); }
+@media (max-width: 760px) { .page { padding-bottom: max(80px, calc(env(safe-area-inset-bottom) + 24px)); } }
+@media (max-width: 560px) {
+  table.t td.c0 { white-space: normal; min-width: 92px; }
+}
+@media (max-width: 380px) {
+  table.t td:first-child { white-space: normal; }
+  table.t th { white-space: normal; }
+  table.t th, table.t td { padding-inline: 6px; }
+}
+/* Wide report tables become one small card per row on narrow phones. */
+@media (max-width: 420px) {
+  table.t.stack thead { display: none; }
+  table.t.stack, table.t.stack tbody, table.t.stack tr, table.t.stack td { display: block; width: 100%; }
+  table.t.stack tr { padding: 12px 0; border-bottom: 1px solid var(--line); }
+  table.t.stack tr:last-child { border-bottom: 0; }
+  table.t.stack td { border: 0; padding: 2px 0; white-space: normal; min-width: 0; }
+  table.t.stack td.c0 { font-size: 15px; padding-bottom: 6px; }
+  table.t.stack td.cx[data-label]:not([data-label=""])::before { content: attr(data-label); display: block; font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); margin-top: 6px; }
+}

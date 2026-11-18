@@ -2,9 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <script>try{document.documentElement.dataset.theme=localStorage.getItem("vae.theme")||"dark"}catch(e){document.documentElement.dataset.theme="dark"}</script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>var t="dark";try{t=localStorage.getItem("vae.theme")||"dark"}catch(e){}document.documentElement.dataset.theme=t;</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#09090b" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Vedic Astro" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <script>try{if(document.documentElement.dataset.theme==="light")document.querySelector('meta[name="theme-color"]').content="#f4f4f5"}catch(e){}</script>
     <meta name="description" content="Free Vedic astrology: birth chart, navamsa, Vimshottari dasha, panchang, doshas and kundli matching." />
     <link rel="icon" href="/mark.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />

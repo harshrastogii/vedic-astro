@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useAuth } from './auth.jsx';
+import { useAuth, DEV_PREVIEW } from './auth.jsx';
 import { supabase } from './supabase.js';
 
 // Signed out: profiles live in this browser (localStorage).
@@ -32,7 +32,7 @@ export function ProfilesProvider({ children }) {
   const { user: authUser, ready } = useAuth();
   // Depend on the account id, not the user object: the object is replaced on
   // every hourly token refresh, which must not reload or reset anything.
-  const userId = authUser?.id ?? null;
+  const userId = DEV_PREVIEW ? null : (authUser?.id ?? null); // preview keeps profiles in this browser
   const user = userId ? authUser : null;
   const [local, setLocal] = useState(() => load(KEY, []));
   const [remote, setRemote] = useState(null); // null = not loaded
@@ -74,7 +74,7 @@ export function ProfilesProvider({ children }) {
 
   const signedIn = !!user;
   // Signed out: nothing is shown (the whole site is behind sign-in).
-  const profiles = signedIn ? (remote ?? []) : [];
+  const profiles = signedIn ? (remote ?? []) : (DEV_PREVIEW ? local : []);
   const loading = signedIn && remote === null;
 
   const upsert = useCallback(async (p) => {

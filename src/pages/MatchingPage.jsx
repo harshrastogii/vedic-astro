@@ -101,14 +101,14 @@ export default function MatchingPage() {
             <div className="card-head"><h2>Ashtakoot breakdown</h2><span className="sub">8 kootas, 36 points</span></div>
             <div className="table-wrap">
               <table className="t tnum">
-                <thead><tr><th>Koota</th><th>What it reflects</th><th style={{ textAlign: 'right' }}>Score</th><th style={{ width: 140 }}></th></tr></thead>
+                <thead><tr><th>Koota</th><th>What it reflects</th><th style={{ textAlign: 'right' }}>Score</th><th className="bar-col" style={{ width: 140 }}></th></tr></thead>
                 <tbody>
                   {Object.entries(m.kootas).map(([key, r]) => (
                     <tr key={key}>
                       <td style={{ fontWeight: 700 }}>{KOOTA_INFO[key][0]}</td>
-                      <td className="muted" style={{ whiteSpace: 'normal', minWidth: 160 }}>{KOOTA_INFO[key][1]}{r.groom ? ` (${r.groom} / ${r.bride})` : ''}</td>
+                      <td className="muted koota-desc" style={{ whiteSpace: 'normal' }}>{KOOTA_INFO[key][1]}{r.groom ? ` (${r.groom} / ${r.bride})` : ''}</td>
                       <td style={{ textAlign: 'right', fontWeight: 700 }}>{r.points} / {r.max}</td>
-                      <td><div className="bar" style={{ marginTop: 0 }}><i style={{ width: `${(r.points / r.max) * 100}%`, background: r.points === 0 ? 'var(--bad)' : undefined }} /></div></td>
+                      <td className="bar-col"><div className="bar" style={{ marginTop: 0 }}><i style={{ width: `${(r.points / r.max) * 100}%`, background: r.points === 0 ? 'var(--bad)' : undefined }} /></div></td>
                     </tr>
                   ))}
                 </tbody>

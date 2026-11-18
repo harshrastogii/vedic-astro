@@ -116,7 +116,7 @@ function Dashboard({ profile }) {
               <h2 style={{ color: 'var(--gold)' }}>
                 {tara.good === true ? `A supportive day for you, ${first}` : tara.good === false ? `A day to go carefully, ${first}` : `A reflective day for you, ${first}`}
               </h2>
-              <span className="muted row" style={{ gap: 6 }}><span style={{ width: 18, height: 18, display: 'inline-grid' }}><PinIcon /></span>{profile.place.name.split(',')[0]}</span>
+              <span className="muted place-line"><span className="pin"><PinIcon /></span><span className="nm">{profile.place.name.split(',')[0]}</span></span>
             </div>
             <p className="lead" style={{ color: 'var(--ink)' }}>
               Today the Moon is in {today.nakshatra.name}, the {ordinal(tara.count)} star from your birth star {k.chart.planets.Moon.nakshatraName}: <strong>{tara.name}</strong> tara. {tara.text}
@@ -124,7 +124,7 @@ function Dashboard({ profile }) {
             <p className="muted small">
               {today.tithi.paksha} {today.tithi.name} till {untilLabel(today.tithi.endsAt, today.date, tz)} · Rahu Kaal {today.rahuKaal ? `${fmtTime(today.rahuKaal.start, tz)} – ${fmtTime(today.rahuKaal.end, tz)}` : '—'}
             </p>
-            <button className="link" style={{ border: 0, background: 'none', padding: 0, cursor: 'pointer', justifySelf: 'start' }} onClick={() => ask('What should I focus on today?')}>
+            <button className="link" style={{ border: 0, background: 'none', paddingInline: 0, cursor: 'pointer', justifySelf: 'start' }} onClick={() => ask('What should I focus on today?')}>
               <ChatIcon />What should I focus on today? <ArrowRightIcon />
             </button>
           </section>

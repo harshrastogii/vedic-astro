@@ -95,7 +95,7 @@ function ChartBody({ profile, style, setStyle, view, setView }) {
                   <li key={n}>
                     <PlanetBadge planet={n} />
                     <span className="name">{n}</span>
-                    {p.retrograde && <span className="pill warn tiny"><RetroIcon />Retrograde</span>}
+                    {p.retrograde && <span className="pill warn tiny" title="Retrograde" aria-label="Retrograde"><RetroIcon /><span className="lbl">Retrograde</span></span>}
                     <span className="right">
                       <SignLabel sign={p.sign}>{p.signName} {p.degree.toFixed(1)}°</SignLabel>
                       <span className="hs" title={`${ordinal(p.house)} house`}><HouseSmIcon />{p.house}</span>

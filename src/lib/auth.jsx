@@ -18,12 +18,24 @@ const Ctx = createContext(null);
 
 const READY_FALLBACK_MS = 6000;
 
+// Development-only layout preview: a pretend signed-in user so pages can be
+// checked at phone sizes on the local dev server. `import.meta.env.DEV` is
+// false in the production build, so this is removed from the real site.
+export const DEV_PREVIEW = import.meta.env.DEV && (() => {
+  try { return localStorage.getItem('vae.devPreview') === '1'; } catch { return false; }
+})();
+const PREVIEW_SESSION = DEV_PREVIEW ? {
+  access_token: 'dev-preview',
+  user: { id: 'dev-preview', email: 'preview.user@example.com', app_metadata: { provider: 'google' }, user_metadata: { full_name: 'Preview User' } },
+} : null;
+
 export function AuthProvider({ children }) {
-  const [session, setSession] = useState(null);
-  const [ready, setReady] = useState(false);
+  const [session, setSession] = useState(PREVIEW_SESSION);
+  const [ready, setReady] = useState(DEV_PREVIEW);
   const [notice, setNotice] = useState(() => readOAuthError());
 
   useEffect(() => {
+    if (DEV_PREVIEW) return undefined;
     let alive = true;
     let hadSession = false;
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {

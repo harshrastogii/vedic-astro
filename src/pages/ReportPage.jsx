@@ -48,9 +48,9 @@ export default function ReportPage() {
               )}
               {s.rows && (s.rows.length ? (
                 <div className="table-wrap">
-                  <table className="t">
+                  <table className={`t${(s.head?.length ?? s.rows[0].length) >= 3 ? ' stack' : ''}`}>
                     {s.head && <thead><tr>{s.head.map((h) => <th key={h}>{h}</th>)}</tr></thead>}
-                    <tbody>{s.rows.map((row, i) => <tr key={i}>{row.map((cell, j) => <td key={j} style={{ whiteSpace: j === 0 ? 'nowrap' : 'normal', fontWeight: j === 0 ? 600 : 400 }}>{cell}</td>)}</tr>)}</tbody>
+                    <tbody>{s.rows.map((row, i) => <tr key={i}>{row.map((cell, j) => <td key={j} className={j === 0 ? 'c0' : 'cx'} data-label={s.head?.[j] ?? ''}>{cell}</td>)}</tr>)}</tbody>
                   </table>
                 </div>
               ) : <p className="muted">None found.</p>)}

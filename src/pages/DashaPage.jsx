@@ -51,8 +51,9 @@ export default function DashaPage() {
                   </div>
                   <div className="bar"><i style={{ width: `${pct}%` }} /></div>
                 </div>
-                <div className="small muted tnum" style={{ textAlign: 'right' }}>
-                  {fmtDate(md.startDate, tz)} – {fmtDate(md.endDate, tz)}<br />{yrs(md.years)}
+                <div className="md-dates small muted tnum">
+                  <span>{fmtDate(md.startDate, tz)} – {fmtDate(md.endDate, tz)}</span>
+                  <span>{yrs(md.years)}</span>
                 </div>
                 <ChevronIcon className="chev" />
               </button>

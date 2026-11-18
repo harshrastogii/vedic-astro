@@ -5,5 +5,7 @@ export function getTheme() {
 }
 export function setTheme(t) {
   document.documentElement.dataset.theme = t;
+  // Phone browser bar follows the theme.
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', t === 'light' ? '#f4f4f5' : '#09090b');
   try { localStorage.setItem(KEY, t); } catch { /* ignore */ }
 }

@@ -24,7 +24,7 @@ export default function AccountPage() {
         {avatarUrl
           ? <img src={avatarUrl} alt="" width="64" height="64" referrerPolicy="no-referrer" className="account-photo" />
           : <span className="avatar" style={{ width: 64, height: 64, fontSize: 24 }}>{(displayName || user.email || '?').slice(0, 1).toUpperCase()}</span>}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="account-info">
           <div className="eyebrow">Signed in with {via}</div>
           <h2 style={{ fontSize: 20, margin: '2px 0' }}>{displayName || user.email}</h2>
           <div className="small muted" style={{ overflowWrap: 'anywhere' }}>

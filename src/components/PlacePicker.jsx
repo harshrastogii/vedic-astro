@@ -67,7 +67,7 @@ export default function PlacePicker({ value, onChange, id }) {
       <input
         id={id}
         className="input"
-        placeholder="City, or paste a Google Maps link or coordinates"
+        placeholder="City or Google Maps link"
         value={q}
         autoComplete="off"
         onFocus={() => setOpen(true)}

@@ -61,7 +61,13 @@ function Chat({ active, profiles }) {
     return () => { cancelled = true; };
   }, [convId]);
 
-  useEffect(() => { endRef.current?.scrollIntoView({ block: 'end' }); }, [messages, streaming]);
+  // Keep the newest message in view by scrolling the message panel itself
+  // (scrollIntoView would also scroll the whole page on phones).
+  useEffect(() => {
+    if (!messages.length && streaming === null) return;
+    const box = endRef.current?.closest('.chat-scroll');
+    if (box) box.scrollTop = box.scrollHeight;
+  }, [messages, streaming]);
 
   // A question passed in the link (from the dashboard or chart page) starts a new chat.
   // Also works when the chat page is already open and a new ?q= arrives.
