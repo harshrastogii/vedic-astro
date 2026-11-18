@@ -41,6 +41,14 @@ function Chat({ active, profiles }) {
   const endRef = useRef(null);
   const abortRef = useRef(null);
   const askedRef = useRef(null);
+  const inputRef = useRef(null);
+  // Grow the message box with its text (Safari has no CSS for this), up to ~6 lines.
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+  }, [draft]);
 
   const conv = convs.find((c) => c.id === convId);
   const convProfile = profiles.find((p) => p.id === conv?.profile_id) ?? active;
@@ -215,9 +223,12 @@ function Chat({ active, profiles }) {
 
         <form className="chat-input" onSubmit={(e) => { e.preventDefault(); send(draft); }}>
           <textarea
+            ref={inputRef}
             className="input"
             rows={1}
-            placeholder="Ask about career, relationships, timing…"
+            placeholder="Ask about your chart…"
+            aria-label="Your question"
+            enterKeyHint="send"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(draft); } }}

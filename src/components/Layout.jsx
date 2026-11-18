@@ -89,7 +89,7 @@ export default function Layout() {
       {/* Re-mount every page when the signed-in person changes (sign-out, or a
           different account signed in from another tab), so nothing from the
           previous account can stay on screen. */}
-      <main className="page" key={user?.id ?? 'guest'}>
+      <main className={`page${pathname === '/chat' ? ' page-chat' : ''}`} key={user?.id ?? 'guest'}>
         {content}
       </main>
     </>

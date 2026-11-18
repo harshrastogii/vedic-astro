@@ -458,7 +458,8 @@ table.t td.cx { white-space: normal; }
 .starter { text-align: left; border: 1px solid var(--line-2); background: var(--surface-2); border-radius: 12px; padding: 11px 14px; cursor: pointer; font-size: 14px; }
 .starter:hover { border-color: var(--brand); background: var(--brand-soft); }
 .chat-input { display: flex; gap: 10px; padding: 12px 14px; border-top: 1px solid var(--line); align-items: flex-end; }
-.chat-input textarea { height: auto; min-height: 46px; max-height: 160px; padding: 12px 14px; resize: none; field-sizing: content; }
+.chat-input textarea { height: 46px; min-height: 46px; max-height: 160px; padding: 11px 14px; line-height: 22px; resize: none; overflow-y: auto; }
+.chat-input .btn { height: 46px; flex: none; }
 .typing { display: inline-flex; gap: 4px; }
 .typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); animation: blink 1.2s infinite; }
 .typing i:nth-child(2) { animation-delay: .2s; } .typing i:nth-child(3) { animation-delay: .4s; }
@@ -471,6 +472,21 @@ table.t td.cx { white-space: normal; }
   .chat-list-toggle { display: inline-flex; }
   .starters { grid-template-columns: 1fr; }
   .bubble { max-width: 92%; }
+}
+@media (max-width: 760px) {
+  /* Phones: the chat fills the screen; answers use the full width. */
+  .page.page-chat { padding: 10px 10px max(10px, env(safe-area-inset-bottom)); gap: 0; }
+  .page-chat .chat-shell { height: calc(100dvh - 65px - 20px - env(safe-area-inset-bottom)); min-height: 380px; }
+  .page-chat .chat-main { border-radius: 18px; }
+  .chat-head { padding: 10px 12px; }
+  .chat-head > :last-child { font-size: 13px; text-align: right; min-width: 0; }
+  .chat-scroll { padding: 14px 12px; gap: 12px; }
+  .bubble { padding: 11px 14px; border-radius: 16px; line-height: 1.55; }
+  .bubble.assistant { max-width: 100%; }
+  .bubble.user { max-width: 85%; }
+  .md ul, .md ol { padding-left: 18px; }
+  .chat-input { padding: 10px; gap: 8px; }
+  .chat-input .btn { padding: 0 16px; }
 }
 
 /* ---------- reports ---------- */
