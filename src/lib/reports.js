@@ -165,7 +165,7 @@ export function buildReport(type, profile, now = new Date()) {
       sections: [
         { title: 'Strengths', items: L.positives.length ? L.positives : ['No special strengths stand out; ordinary, steady prospects.'] },
         { title: 'Challenges', items: L.challenges.length ? L.challenges : ['No significant challenges found.'] },
-        { title: 'Other notes', items: L.notes.length ? L.notes : ['—'] },
+        ...(L.notes.length ? [{ title: 'Other notes', items: L.notes }] : []),
         { title: 'Best upcoming periods for love', rows: windows, head: ['Dasha period', 'Dates'] },
       ],
     };
