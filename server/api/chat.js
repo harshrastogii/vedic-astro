@@ -118,24 +118,57 @@ export async function POST(request) {
   const base = body.mode === 'report' ? REPORT_PROMPT : SYSTEM_PROMPT;
   const system = context ? `${base}\n\n--- CHART DATA ---\n${context}` : base;
 
+  const isReport = body.mode === 'report';
+
+  // Attempt 1: primary model (with gateway fallbacks). Reports need no
+  // "thinking" (every fact is supplied); chat gets a little.
+  // Attempt 2, only if attempt 1 produced no text at all (the free models
+  // sometimes spend the whole budget thinking): backup model, no thinking.
+  const attempts = [
+    { model: PRIMARY_MODEL, reasoning: isReport ? 'none' : 'low', fallbacks: FALLBACK_MODELS },
+    { model: FALLBACK_MODELS[0] || PRIMARY_MODEL, reasoning: 'none', fallbacks: [PRIMARY_MODEL] },
+  ];
+
+  const run = (a) => streamText({
+    model: a.model,
+    system,
+    messages,
+    reasoning: a.reasoning,
+    maxOutputTokens: 8000,
+    providerOptions: { gateway: { models: a.fallbacks } },
+    abortSignal: request.signal,
+    onError: ({ error }) => console.error('stream error', error),
+    onFinish: ({ finishReason, usage, text, response }) => console.log('chat finished', JSON.stringify({
+      attempt: a.model, finishReason, chars: text.length, model: response?.modelId, usage,
+    })),
+  });
+
+  const enc = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      try {
+        for (const a of attempts) {
+          let wrote = 0;
+          for await (const chunk of run(a).textStream) {
+            if (!chunk) continue;
+            wrote += chunk.length;
+            controller.enqueue(enc.encode(chunk));
+          }
+          if (wrote > 0 || request.signal.aborted) break;
+          console.warn('empty answer, retrying', a.model);
+        }
+      } catch (err) {
+        if (!request.signal.aborted) console.error('chat stream failed', err);
+      } finally {
+        controller.close();
+      }
+    },
+  });
+
   try {
-    const result = streamText({
-      model: PRIMARY_MODEL,
-      system,
-      messages,
-      // The free models "think" before answering. Keep thinking short and leave
-      // plenty of room, otherwise long chart questions can use the whole budget
-      // on thinking and return an empty answer.
-      reasoning: 'low',
-      maxOutputTokens: 8000,
-      providerOptions: { gateway: { models: FALLBACK_MODELS } },
-      abortSignal: request.signal,
-      onError: ({ error }) => console.error('stream error', error),
-      onFinish: ({ finishReason, usage, text, response }) => console.log('chat finished', JSON.stringify({
-        finishReason, chars: text.length, model: response?.modelId, usage,
-      })),
+    return new Response(stream, {
+      headers: { ...cors(request), 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
     });
-    return result.toTextStreamResponse({ headers: { ...cors(request), 'Cache-Control': 'no-store' } });
   } catch (err) {
     console.error('chat error', err);
     return json(request, 502, { error: 'The AI service is unavailable right now. Please try again.' });
