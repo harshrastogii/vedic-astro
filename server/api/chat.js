@@ -1,4 +1,4 @@
-// Chat endpoint for Vedic Astro, deployed on Vercel.
+// Chat endpoint for AstroTalk, deployed on Vercel.
 // - Answers any signed-in user (verified with Supabase). Each user's data stays
 //   private through row-level security; this endpoint stores nothing itself.
 // - Calls a free model through Vercel AI Gateway. On Vercel the gateway is
@@ -55,7 +55,7 @@ const STYLE = `Writing style (important):
 - Use ordinary hyphens (-) only, never special hyphen characters.
 - **Bold** only a few key placements or dates, never whole sentences.`;
 
-const SYSTEM_PROMPT = `You are a warm, knowledgeable Vedic astrology guide chatting with the user inside the "Vedic Astro" app.
+const SYSTEM_PROMPT = `You are a warm, knowledgeable Vedic astrology guide chatting with the user inside the "AstroTalk" app.
 You answer questions about the user's birth chart using the chart data supplied below, which the app
 calculated (sidereal zodiac, Lahiri ayanamsa, whole-sign houses, Vimshottari dasha).
 
@@ -74,7 +74,7 @@ How to answer:
 
 ${STYLE}`;
 
-const REPORT_PROMPT = `You are an experienced Vedic astrologer writing a personal report inside the "Vedic Astro" app.
+const REPORT_PROMPT = `You are an experienced Vedic astrologer writing a personal report inside the "AstroTalk" app.
 The app has already calculated everything: the chart data and the REPORT FACTS below are authoritative.
 
 Rules:

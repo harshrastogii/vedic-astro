@@ -6,4 +6,4 @@ export const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_QGoZMrOk9Qrol4H0qltZQQ_V
 // Chat server (Vercel). Override for local testing with VITE_CHAT_API_URL.
 export const CHAT_API_URL = import.meta.env.VITE_CHAT_API_URL || 'https://vedic-astro-chat.vercel.app/api/chat';
 
-export const BASE = import.meta.env.BASE_URL; // "/" locally, "/vedic-astro/" on GitHub Pages
+export const BASE = import.meta.env.BASE_URL; // "/" (the site is served at https://astrotalk.space/)

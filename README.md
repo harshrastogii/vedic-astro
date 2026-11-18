@@ -1,10 +1,10 @@
-# Vedic Astro — web app
+# AstroTalk web app
 
 A free Vedic astrology site. Every chart calculation runs in the browser, with no
 wallets or paywalls. Signing in with Google or GitHub (optional) saves profiles and AI chat
 history to your account; without signing in, profiles stay in the browser.
 
-- Site: GitHub Pages (`.github/workflows/pages.yml` builds and deploys on every push to `main`)
+- Site: https://astrotalk.space on GitHub Pages (`.github/workflows/pages.yml` builds and deploys on every push to `main`)
 - Login and data: Supabase (Google and GitHub sign-in, row-level security so each user only sees their own rows)
 - AI chat: `server/api/chat.js` on Vercel, using a free model through Vercel AI Gateway
 

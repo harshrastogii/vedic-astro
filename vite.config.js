@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// On GitHub Pages the site lives at https://<user>.github.io/vedic-astro/
+// Served from the root of https://astrotalk.space (GitHub Pages custom domain).
 export default defineConfig({
   base: process.env.PAGES_BASE || '/',
   plugins: [react()],

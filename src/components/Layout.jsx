@@ -7,7 +7,7 @@ import { getTheme, setTheme } from '../lib/theme.js';
 import { MenuIcon, XIcon, MoonStarIcon, SunIcon } from './Icons.jsx';
 import { REPORT_TYPES } from '../lib/reports.js';
 
-export const APP_NAME = 'Vedic Astro';
+export const APP_NAME = 'AstroTalk';
 
 const NAV = [
   { to: '/', label: 'Dashboard', end: true },
@@ -71,7 +71,7 @@ export default function Layout() {
   return (
     <>
       <header className="topnav">
-        <Link to="/" className="logo"><img src={`${BASE}mark.svg`} alt="" /><span>Vedic <em>Astro</em></span></Link>
+        <Link to="/" className="logo"><img src={`${BASE}mark.svg`} alt="" /><span>Astro<em>Talk</em></span></Link>
         {user && <nav className="navlinks" aria-label="Main">{links}</nav>}
         <div className="nav-right">
           <button className="round-btn" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}>

@@ -26,9 +26,7 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-        env:
-          PAGES_BASE: /${{ github.event.repository.name }}/
-      # Single-page app: serve index.html for deep links like /vedic-astro/chart
+      # Single-page app: serve index.html for deep links like /chart
       - run: cp dist/index.html dist/404.html
       - uses: actions/upload-pages-artifact@v3
         with:

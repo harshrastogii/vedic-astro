@@ -10,7 +10,7 @@ export default function LoginPage() {
   return (
     <div className="login-wrap">
       <SignInCard
-        title="Sign in to Vedic Astro"
+        title="Sign in to AstroTalk"
         reason="Use your Google account. Your birth profiles, chats and readings are private to your account; no one else can see them."
       />
       <p className="small muted" style={{ textAlign: 'center' }}>
