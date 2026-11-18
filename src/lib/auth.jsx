@@ -35,7 +35,11 @@ export function AuthProvider({ children }) {
         });
         if (error) throw error;
       },
-      async signOut() { await supabase.auth.signOut(); },
+      async signOut() {
+        // Ends the session in this browser and removes the stored tokens.
+        await supabase.auth.signOut({ scope: 'local' });
+        try { localStorage.removeItem('vae.active.v1'); } catch { /* ignore */ }
+      },
     };
   }, [session, ready]);
 

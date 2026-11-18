@@ -3,8 +3,10 @@ import { useAuth } from './auth.jsx';
 import { supabase } from './supabase.js';
 
 // Signed out: profiles live in this browser (localStorage).
-// Signed in: profiles live in the database, and any browser-only profiles are
-// uploaded once on sign-in so nothing is lost.
+// Signed in: profiles live in the database (row-level security: only the owner
+// can read them). Profiles made in this browser before signing in are never
+// copied into an account automatically; the person signing in chooses to add
+// or discard them (a shared computer must not leak one person's data to another).
 const KEY = 'vae.profiles.v1';
 const ACTIVE = 'vae.active.v1';
 
@@ -36,7 +38,7 @@ export function ProfilesProvider({ children }) {
   useEffect(() => save(KEY, local), [local]);
   useEffect(() => save(ACTIVE, activeId), [activeId]);
 
-  // Load from the database on sign-in; upload browser-only profiles once.
+  // Load from the database on sign-in.
   useEffect(() => {
     if (!ready) return;
     if (!user) { setRemote(null); return; }
@@ -45,26 +47,26 @@ export function ProfilesProvider({ children }) {
       const { data, error: e } = await supabase.from('birth_profiles').select('*').order('created_at');
       if (cancelled) return;
       if (e) { setError(e.message); setRemote([]); return; }
-      let rows = data.map(fromRow);
-      const pending = load(KEY, []).filter((p) => !rows.some((r) => sameBirth(r, p)));
-      let uploaded = true;
-      if (pending.length) {
-        const { data: inserted, error: e2 } = await supabase.from('birth_profiles').insert(pending.map(toRow)).select('*');
-        if (cancelled) return;
-        if (e2 || !inserted) {
-          uploaded = false;
-          setError(e2?.message ?? 'Could not upload saved profiles.');
-        } else {
-          rows = [...rows, ...inserted.map(fromRow)];
-          const moved = pending.findIndex((p) => p.id === load(ACTIVE, null));
-          if (moved >= 0) setActiveId(inserted[moved].id);
-        }
-      }
-      if (uploaded) setLocal([]); // keep browser copies if the upload failed
-      setRemote(rows);
+      setRemote(data.map(fromRow));
     })();
     return () => { cancelled = true; };
   }, [user, ready]);
+
+  // Browser-only profiles waiting for the signed-in person's decision.
+  const pending = useMemo(
+    () => (user && remote ? local.filter((p) => !remote.some((r) => sameBirth(r, p))) : []),
+    [user, remote, local],
+  );
+
+  const importPending = useCallback(async () => {
+    if (!pending.length) { setLocal([]); return; }
+    const { data: inserted, error: e } = await supabase.from('birth_profiles').insert(pending.map(toRow)).select('*');
+    if (e || !inserted) { setError(e?.message ?? 'Could not add those profiles.'); return; }
+    setRemote((list) => [...(list ?? []), ...inserted.map(fromRow)]);
+    setLocal([]);
+  }, [pending]);
+
+  const discardPending = useCallback(() => setLocal([]), []);
 
   const signedIn = !!user;
   const profiles = signedIn ? (remote ?? []) : local;
@@ -105,6 +107,9 @@ export function ProfilesProvider({ children }) {
   const value = useMemo(() => ({
     profiles,
     loading,
+    pending,
+    importPending,
+    discardPending,
     error,
     clearError: () => setError(''),
     synced: signedIn,
@@ -112,7 +117,7 @@ export function ProfilesProvider({ children }) {
     setActive: setActiveId,
     upsert,
     remove,
-  }), [profiles, loading, error, signedIn, activeId, upsert, remove]);
+  }), [profiles, loading, pending, importPending, discardPending, error, signedIn, activeId, upsert, remove]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

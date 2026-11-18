@@ -15,13 +15,13 @@ const GoogleMark = () => (
   </svg>
 );
 
-export default function SignInCard({ reason }) {
+export default function SignInCard({ reason, title = 'Sign in' }) {
   const { signIn } = useAuth();
   const [err, setErr] = useState('');
   const go = (p) => signIn(p).catch((e) => setErr(e.message));
   return (
     <div className="card empty">
-      <h2 style={{ fontSize: 20 }}>Sign in</h2>
+      <h2 style={{ fontSize: 20 }}>{title}</h2>
       <p className="muted" style={{ maxWidth: 460 }}>{reason}</p>
       <div className="signin-buttons">
         <button className="btn google" onClick={() => go('google')}><GoogleMark />Continue with Google</button>

@@ -1,6 +1,6 @@
 // Chat endpoint for Vedic Astro, deployed on Vercel.
-// - Verifies the caller's Supabase login and only answers the owner and family
-//   members added in the app (Account → Family access).
+// - Answers any signed-in user (verified with Supabase). Each user's data stays
+//   private through row-level security; this endpoint stores nothing itself.
 // - Calls a free model through Vercel AI Gateway. On Vercel the gateway is
 //   authenticated automatically (OIDC), so no API key is stored anywhere.
 // - Streams plain text back. The browser saves the conversation in Supabase.
@@ -9,7 +9,6 @@ import { streamText } from 'ai';
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
-const ALLOWED_GITHUB_IDS = (process.env.ALLOWED_GITHUB_IDS || '').split(',').map((s) => s.trim()).filter(Boolean);
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean);
 
 const PRIMARY_MODEL = process.env.CHAT_MODEL || 'nvidia/nemotron-3.5-lightning-free';
@@ -43,22 +42,6 @@ async function getUser(token) {
   return res.json();
 }
 
-// Family access list lives in Supabase (chat_members / app_admins). The
-// can_chat() function answers for the signed-in caller only.
-async function canChat(token) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/can_chat`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
-    body: '{}',
-  });
-  if (!res.ok) { console.error('can_chat failed', res.status); return false; }
-  return (await res.json()) === true;
-}
-
-function githubId(user) {
-  const gh = (user.identities || []).find((i) => i.provider === 'github');
-  return String(gh?.identity_data?.provider_id ?? gh?.id ?? user.user_metadata?.provider_id ?? '');
-}
 
 // Writing rules shared by chat and reports. The free models default to a
 // "report" voice (tables, emoji headings, em dashes); these keep replies readable.
@@ -112,13 +95,6 @@ export async function POST(request) {
 
   const user = await getUser(token);
   if (!user) return json(request, 401, { error: 'Your session has expired. Please sign in again.' });
-  const allowed = ALLOWED_GITHUB_IDS.includes(githubId(user)) || await canChat(token);
-  if (!allowed) {
-    return json(request, 403, {
-      error: `AI chat isn't switched on for ${user.email || 'this account'} yet. Ask the site owner to add this email under Account → Family access.`,
-      code: 'not_member',
-    });
-  }
 
   let body;
   try { body = await request.json(); } catch { return json(request, 400, { error: 'Invalid request.' }); }

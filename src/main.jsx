@@ -17,6 +17,7 @@ import PanchangPage from './pages/PanchangPage.jsx';
 import DoshaPage from './pages/DoshaPage.jsx';
 import MatchingPage from './pages/MatchingPage.jsx';
 import NotFound from './pages/NotFound.jsx';
+import LoginPage from './pages/LoginPage.jsx';
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
       { path: 'profiles', element: <Profiles /> },
       { path: 'chat', element: <ChatPage /> },
       { path: 'account', element: <AccountPage /> },
+      { path: 'login', element: <LoginPage /> },
       { path: 'reports', element: <ReportsPage /> },
       { path: 'reports/:type', element: <ReportPage /> },
       { path: 'chart', element: <ChartPage /> },

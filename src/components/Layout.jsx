@@ -18,7 +18,7 @@ const NAV = [
   { to: '/panchang', label: 'Panchang' },
 ];
 
-const TITLES = { ...Object.fromEntries(NAV.map((n) => [n.to, n.label])), '/account': 'Account', '/profiles': 'Profiles', '/doshas': 'Doshas' };
+const TITLES = { ...Object.fromEntries(NAV.map((n) => [n.to, n.label])), '/account': 'Account', '/login': 'Sign in', '/profiles': 'Profiles', '/doshas': 'Doshas' };
 
 export default function Layout() {
   const [open, setOpen] = useState(false);
@@ -53,9 +53,13 @@ export default function Layout() {
           <button className="round-btn" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}>
             {theme === 'dark' ? <MoonStarIcon /> : <SunIcon />}
           </button>
-          <Link to="/account" className="avatar-btn" aria-label={user ? 'Account' : 'Sign in'}>
-            {user && avatarUrl ? <img src={avatarUrl} alt="" /> : (user ? displayName.slice(0, 1).toUpperCase() : '?')}
-          </Link>
+          {user ? (
+            <Link to="/account" className="avatar-btn" aria-label="Account">
+              {avatarUrl ? <img src={avatarUrl} alt="" referrerPolicy="no-referrer" /> : displayName.slice(0, 1).toUpperCase()}
+            </Link>
+          ) : (
+            <Link to="/login" className="btn small signin-btn">Sign in</Link>
+          )}
           <button className="round-btn menu-toggle" aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} onClick={() => setOpen((v) => !v)}>
             {open ? <XIcon /> : <MenuIcon />}
           </button>

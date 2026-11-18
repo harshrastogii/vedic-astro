@@ -135,7 +135,7 @@ function AiReading({ report, profile }) {
       {!user && (
         <div style={{ display: 'grid', gap: 10 }}>
           <p className="muted">Sign in to get an AI-written explanation of this report. It is saved to your account.</p>
-          <Link to="/account" className="btn small" style={{ justifySelf: 'start' }}>Sign in</Link>
+          <Link to="/login" className="btn small" style={{ justifySelf: 'start' }}>Sign in</Link>
         </div>
       )}
       {user && !body && !busy && (
