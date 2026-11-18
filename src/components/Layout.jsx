@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth, takeReturnTo, rememberReturnTo } from '../lib/auth.jsx';
+import { useProfiles } from '../lib/store.jsx';
 import { BASE } from '../config.js';
 import { getTheme, setTheme } from '../lib/theme.js';
 import { MenuIcon, XIcon, MoonStarIcon, SunIcon } from './Icons.jsx';
@@ -18,15 +19,17 @@ const NAV = [
   { to: '/panchang', label: 'Panchang' },
 ];
 
-const TITLES = { ...Object.fromEntries(NAV.map((n) => [n.to, n.label])), '/account': 'Account', '/login': 'Sign in', '/profiles': 'Profiles', '/doshas': 'Doshas' };
+const TITLES = { ...Object.fromEntries(NAV.map((n) => [n.to, n.label])), '/account': 'Account', '/login': 'Sign in', '/welcome': 'Welcome', '/profiles': 'Birth details', '/doshas': 'Doshas' };
 
 export default function Layout() {
   const [open, setOpen] = useState(false);
   const [theme, setThemeState] = useState(getTheme);
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
-  const { ready, user, displayName, avatarUrl } = useAuth();
+  const { ready, user } = useAuth();
+  const { profiles, loading: profilesLoading } = useProfiles();
   const onLogin = pathname === '/login';
+  const needsSetup = !!user && !profilesLoading && profiles.length === 0;
 
   // After signing in (Google/GitHub bring people back to /account), continue
   // to the page they originally tried to open.
@@ -56,6 +59,9 @@ export default function Layout() {
   else if (!user && !onLogin) {
     rememberReturnTo(`${pathname}${search}`);
     content = <Navigate to="/login" replace />;
+  } else if (needsSetup && !['/welcome', '/account'].includes(pathname)) {
+    // First sign-in: set up your own birth details before anything else.
+    content = <Navigate to="/welcome" replace />;
   } else content = <Outlet />;
 
   const links = NAV.map(({ to, label, end }) => (
@@ -71,11 +77,7 @@ export default function Layout() {
           <button className="round-btn" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}>
             {theme === 'dark' ? <MoonStarIcon /> : <SunIcon />}
           </button>
-          {user && (
-            <Link to="/account" className="avatar-btn" aria-label="Account">
-              {avatarUrl ? <img src={avatarUrl} alt="" referrerPolicy="no-referrer" /> : displayName.slice(0, 1).toUpperCase()}
-            </Link>
-          )}
+          {user && <UserMenu />}
           {user && (
             <button className="round-btn menu-toggle" aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} onClick={() => setOpen((v) => !v)}>
               {open ? <XIcon /> : <MenuIcon />}
@@ -83,7 +85,7 @@ export default function Layout() {
           )}
         </div>
       </header>
-      {user && open && <nav className="mobile-menu" aria-label="Main">{links}<NavLink to="/profiles">Profiles</NavLink></nav>}
+      {user && open && <nav className="mobile-menu" aria-label="Main">{links}<NavLink to="/profiles">My birth details</NavLink><NavLink to="/account">Account</NavLink></nav>}
       {/* Re-mount every page when the signed-in person changes (sign-out, or a
           different account signed in from another tab), so nothing from the
           previous account can stay on screen. */}
@@ -91,5 +93,47 @@ export default function Layout() {
         {content}
       </main>
     </>
+  );
+}
+
+const PROVIDER_LABEL = { google: 'Google', github: 'GitHub' };
+
+// Profile picture in the top-right corner: shows who is signed in and the
+// places a person needs (their details, account, sign out).
+function UserMenu() {
+  const { user, displayName, avatarUrl, provider, signOut } = useAuth();
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => setOpen(false), [pathname]);
+  useEffect(() => {
+    if (!open) return undefined;
+    const onDoc = (e) => { if (!ref.current?.contains(e.target)) setOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onKey); };
+  }, [open]);
+
+  const initial = (displayName || user.email || '?').slice(0, 1).toUpperCase();
+  return (
+    <div className="user-menu" ref={ref}>
+      <button className="avatar-btn" aria-label="Account menu" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+        {avatarUrl ? <img src={avatarUrl} alt="" referrerPolicy="no-referrer" /> : initial}
+      </button>
+      {open && (
+        <div className="user-pop" role="menu">
+          <div className="user-pop-head">
+            <strong>{displayName || 'Signed in'}</strong>
+            <span className="small muted">{PROVIDER_LABEL[provider] ?? 'Account'}{user.email ? ` · ${user.email}` : ''}</span>
+          </div>
+          <Link role="menuitem" to="/profiles">My birth details</Link>
+          <Link role="menuitem" to="/account">Account</Link>
+          <button role="menuitem" type="button" onClick={async () => { setOpen(false); await signOut(); navigate('/login', { replace: true }); }}>Sign out</button>
+        </div>
+      )}
+    </div>
   );
 }

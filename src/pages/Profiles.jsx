@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useProfiles } from '../lib/store.jsx';
 import { kundli } from '../lib/astro.js';
@@ -9,13 +9,18 @@ import PageHead from '../components/PageHead.jsx';
 export default function Profiles() {
   const { profiles, active, upsert, remove, setActive } = useProfiles();
   const [params, setParams] = useSearchParams();
-  const [editing, setEditing] = useState(null);
+  const [editing, setEditing] = useState(() => params.get('edit'));
   const navigate = useNavigate();
+  // /profiles?edit=<id> (from the Account page) opens that profile's form.
+  useEffect(() => {
+    const id = params.get('edit');
+    if (id) { setEditing(id); setParams({}, { replace: true }); }
+  }, [params, setParams]);
   const adding = params.get('new') === '1' || profiles.length === 0;
 
   return (
     <>
-      <PageHead title="Profiles" subtitle="Birth details for you, family and friends." pill={false} />
+      <PageHead title="Birth details" subtitle="Your own details, and anyone else whose chart you want to see." pill={false} />
       {adding && (
         <section className="card">
           <div className="card-head"><h2>New profile</h2></div>

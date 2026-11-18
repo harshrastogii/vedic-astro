@@ -18,6 +18,7 @@ import DoshaPage from './pages/DoshaPage.jsx';
 import MatchingPage from './pages/MatchingPage.jsx';
 import NotFound from './pages/NotFound.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import WelcomePage from './pages/WelcomePage.jsx';
 
 const router = createBrowserRouter([
   {
@@ -29,6 +30,7 @@ const router = createBrowserRouter([
       { path: 'chat', element: <ChatPage /> },
       { path: 'account', element: <AccountPage /> },
       { path: 'login', element: <LoginPage /> },
+      { path: 'welcome', element: <WelcomePage /> },
       { path: 'reports', element: <ReportsPage /> },
       { path: 'reports/:type', element: <ReportPage /> },
       { path: 'chart', element: <ChartPage /> },
