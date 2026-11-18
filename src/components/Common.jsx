@@ -10,13 +10,13 @@ export function PlanetDot({ planet, size = 40 }) {
 }
 
 export function NeedProfile({ what = 'this page' }) {
-  const { loading } = useProfiles();
+  const { loading, synced } = useProfiles();
   if (loading) return <div className="card">Loading your profiles…</div>;
   return (
     <div className="card empty">
       <Orbit className="muted" />
       <h2 style={{ fontSize: 20 }}>Add a birth profile to see {what}</h2>
-      <p className="muted">Date, time and place of birth are all that’s needed. Profiles stay in this browser.</p>
+      <p className="muted">Date, time and place of birth are all that’s needed. {synced ? 'Profiles are saved privately to your account.' : 'Profiles stay in this browser until you sign in.'}</p>
       <Link to="/profiles?new=1" className="btn">Add a profile</Link>
     </div>
   );

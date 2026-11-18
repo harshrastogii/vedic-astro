@@ -40,7 +40,7 @@ function Chat({ active, profiles }) {
   const [showList, setShowList] = useState(false);
   const endRef = useRef(null);
   const abortRef = useRef(null);
-  const askedRef = useRef(false);
+  const askedRef = useRef(null);
 
   const conv = convs.find((c) => c.id === convId);
   const convProfile = profiles.find((p) => p.id === conv?.profile_id) ?? active;
@@ -64,13 +64,14 @@ function Chat({ active, profiles }) {
   useEffect(() => { endRef.current?.scrollIntoView({ block: 'end' }); }, [messages, streaming]);
 
   // A question passed in the link (from the dashboard or chart page) starts a new chat.
+  // Also works when the chat page is already open and a new ?q= arrives.
+  const qParam = params.get('q');
   useEffect(() => {
-    const q = params.get('q');
-    if (!q || askedRef.current) return;
-    askedRef.current = true;
+    if (!qParam || askedRef.current === qParam) return;
+    askedRef.current = qParam;
     setParams({}, { replace: true });
-    send(q, [], true);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    send(qParam, [], true);
+  }, [qParam]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => () => abortRef.current?.abort(), []);
 
   async function send(text, base = messages, fresh = false) {
