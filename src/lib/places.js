@@ -66,3 +66,74 @@ export function fmtCoord(lat, lon) {
   const b = `${Math.abs(lon).toFixed(2)}°${lon >= 0 ? 'E' : 'W'}`;
   return `${a}, ${b}`;
 }
+
+// ---------------------------------------------------------------------------
+// Exact locations: Google Maps links and raw coordinates.
+
+const num = '(-?\\d{1,3}(?:\\.\\d+)?)';
+
+/**
+ * Reads a Google Maps URL or "lat, lon" text.
+ * Returns { name, lat, lon, exact } or null.
+ * Prefers the place pin (!3d…!4d…) over the map view centre (@lat,lon).
+ */
+export function parseLocationInput(text) {
+  const s = (text || '').trim();
+  if (!s) return null;
+  let lat, lon, name = '';
+  const pin = s.match(new RegExp(`!3d${num}!4d${num}`));
+  const at = s.match(new RegExp(`@${num},${num}`));
+  const q = s.match(new RegExp(`[?&](?:q|query|ll|center|destination)=${num}(?:,|%2C)\\s*${num}`, 'i'));
+  const plain = s.match(new RegExp(`^${num}\\s*°?\\s*([NS])?[,\\s]+${num}\\s*°?\\s*([EW])?$`, 'i'));
+  if (pin) { lat = +pin[1]; lon = +pin[2]; }
+  else if (q) { lat = +q[1]; lon = +q[2]; }
+  else if (at) { lat = +at[1]; lon = +at[2]; }
+  else if (plain) {
+    lat = +plain[1] * (/s/i.test(plain[2] || '') ? -1 : 1);
+    lon = +plain[3] * (/w/i.test(plain[4] || '') ? -1 : 1);
+  } else return null;
+  if (!(Math.abs(lat) <= 90 && Math.abs(lon) <= 180)) return null;
+  const placeSeg = s.match(/\/maps\/place\/([^/@?]+)/);
+  if (placeSeg) {
+    try { name = decodeURIComponent(placeSeg[1].replace(/\+/g, ' ')); } catch { name = placeSeg[1].replace(/\+/g, ' '); }
+  }
+  return { name: name || `Exact location (${fmtCoord(lat, lon)})`, lat: +lat.toFixed(6), lon: +lon.toFixed(6), exact: true };
+}
+
+export const isShortMapsLink = (s) => /maps\.app\.goo\.gl|goo\.gl\/maps/i.test(s || '');
+
+function nearestCityTz(lat, lon) {
+  let best = CITIES[0], bd = Infinity;
+  for (const c of CITIES) {
+    const d = (c.lat - lat) ** 2 + ((c.lon - lon) * Math.cos((lat * Math.PI) / 180)) ** 2;
+    if (d < bd) { bd = d; best = c; }
+  }
+  return best.tz;
+}
+
+async function fetchJson(url, ms = 8000) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), ms);
+  try {
+    const r = await fetch(url, { signal: ctrl.signal });
+    if (!r.ok) throw new Error(String(r.status));
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+
+/** IANA timezone for coordinates (online lookup, nearest built-in city as fallback). */
+export async function timezoneFor(lat, lon) {
+  try {
+    const d = await fetchJson(`https://timeapi.io/api/timezone/coordinate?latitude=${lat}&longitude=${lon}`);
+    if (d.timeZone) return { tz: d.timeZone, guessed: false };
+  } catch { /* try next */ }
+  try {
+    const d = await fetchJson(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto&forecast_days=1`);
+    if (d.timezone) return { tz: d.timezone, guessed: false };
+  } catch { /* fall back */ }
+  return { tz: nearestCityTz(lat, lon), guessed: true };
+}
+
+export function allTimezones() {
+  try { return Intl.supportedValuesOf('timeZone'); } catch { return [...new Set(CITIES.map((c) => c.tz))]; }
+}

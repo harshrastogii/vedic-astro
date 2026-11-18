@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { searchOffline, searchOnline, fmtCoord } from '../lib/places.js';
+import { searchOffline, searchOnline, fmtCoord, parseLocationInput, isShortMapsLink, timezoneFor } from '../lib/places.js';
+import { PinIcon } from './Icons.jsx';
 
-/** Type a place, pick a result. Value: { name, lat, lon, tz } | null */
+const coordText = (p) => (p.exact ? `${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}` : fmtCoord(p.lat, p.lon));
+
+/**
+ * Type a city, or paste a Google Maps link / coordinates for an exact spot.
+ * Value: { name, lat, lon, tz, exact? } | null
+ */
 export default function PlacePicker({ value, onChange, id }) {
   const [q, setQ] = useState(value?.name ?? '');
   const [results, setResults] = useState([]);
@@ -13,9 +19,18 @@ export default function PlacePicker({ value, onChange, id }) {
   useEffect(() => { setQ(value?.name ?? ''); }, [value?.name]);
 
   useEffect(() => {
-    if (!open || q.trim().length < 2 || q === value?.name) { setResults(searchOffline(q)); return; }
+    if (!open) return;
+    const exact = parseLocationInput(q);
+    if (exact) { setResults([exact]); setStatus(''); return; }
+    if (isShortMapsLink(q)) {
+      setResults([]);
+      setStatus('Short Maps links can’t be read here. Open the link, then copy the full address from the browser’s address bar and paste that.');
+      return;
+    }
     const local = searchOffline(q);
     setResults(local);
+    setStatus('');
+    if (q.trim().length < 2 || q === value?.name) return;
     const ctrl = new AbortController();
     const t = setTimeout(async () => {
       setStatus('Searching…');
@@ -37,10 +52,14 @@ export default function PlacePicker({ value, onChange, id }) {
     return () => document.removeEventListener('mousedown', onDoc);
   }, []);
 
-  function pick(r) {
-    onChange(r);
+  async function pick(r) {
     setQ(r.name);
     setOpen(false);
+    if (r.tz) { onChange(r); return; }
+    setStatus('Finding the time zone…');
+    const { tz, guessed } = await timezoneFor(r.lat, r.lon);
+    setStatus('');
+    onChange({ name: r.name, lat: r.lat, lon: r.lon, tz, exact: true, ...(guessed ? { tzGuessed: true } : {}) });
   }
 
   return (
@@ -48,7 +67,7 @@ export default function PlacePicker({ value, onChange, id }) {
       <input
         id={id}
         className="input"
-        placeholder="Start typing a city…"
+        placeholder="City, or paste a Google Maps link or coordinates"
         value={q}
         autoComplete="off"
         onFocus={() => setOpen(true)}
@@ -63,17 +82,19 @@ export default function PlacePicker({ value, onChange, id }) {
       {open && (results.length > 0 || status) && (
         <ul className="picker-list" role="listbox">
           {results.map((r, i) => (
-            <li key={`${r.name}-${r.lat}`}>
+            <li key={`${r.name}-${r.lat}-${r.lon}`}>
               <button type="button" className={i === hl ? 'hl' : ''} onMouseEnter={() => setHl(i)} onClick={() => pick(r)}>
-                <span>{r.name}</span>
-                <span className="small">{fmtCoord(r.lat, r.lon)} · {r.tz}</span>
+                <span className="row" style={{ gap: 6 }}>{r.exact && <span style={{ width: 15, height: 15, display: 'inline-grid', color: 'var(--brand)' }}><PinIcon /></span>}{r.name}</span>
+                <span className="small">{r.exact ? `Exact spot · ${coordText(r)}` : `${fmtCoord(r.lat, r.lon)} · ${r.tz}`}</span>
               </button>
             </li>
           ))}
           {status && <li className="small" style={{ padding: '8px 10px' }}>{status}</li>}
         </ul>
       )}
-      {value && <div className="hint" style={{ marginTop: 6 }}>{fmtCoord(value.lat, value.lon)} · {value.tz}</div>}
+      {!open && status && <div className="hint" style={{ marginTop: 6 }}>{status}</div>}
+      {value && <div className="hint" style={{ marginTop: 6 }}>{coordText(value)} · {value.tz}{value.tzGuessed ? ' (estimated, please check)' : ''}</div>}
+      {!value && <div className="hint" style={{ marginTop: 6 }}>For an exact birthplace, find it on Google Maps and paste the link here.</div>}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PlacePicker from './PlacePicker.jsx';
+import { allTimezones } from '../lib/places.js';
 
 const EMPTY = { name: '', gender: 'female', date: '', time: '', place: null };
 
@@ -46,6 +47,20 @@ export default function ProfileForm({ initial, onSave, onCancel, submitLabel = '
         <label htmlFor="pf-place">Place of birth</label>
         <PlacePicker id="pf-place" value={f.place} onChange={set('place')} />
       </div>
+      {f.place && (
+        <div className="field full">
+          <label htmlFor="pf-tz">Time zone of the birthplace</label>
+          <select
+            id="pf-tz"
+            className="select"
+            value={f.place.tz}
+            onChange={(e) => setF((x) => ({ ...x, place: { ...x.place, tz: e.target.value, tzGuessed: false } }))}
+          >
+            {(allTimezones().includes(f.place.tz) ? allTimezones() : [f.place.tz, ...allTimezones()]).map((z) => <option key={z} value={z}>{z.replace(/_/g, ' ')}</option>)}
+          </select>
+          <span className="hint">Filled in automatically. Historical daylight-saving rules for this zone are applied to the birth time.</span>
+        </div>
+      )}
       {err && <div className="full pill bad" style={{ justifySelf: 'start', whiteSpace: 'normal' }}>{err}</div>}
       <div className="full row">
         <button className="btn" type="submit">{submitLabel}</button>
