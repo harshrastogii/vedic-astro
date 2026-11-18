@@ -411,6 +411,18 @@ table.t tr:last-child td { border-bottom: 0; }
 .md ul, .md ol { padding-left: 20px; }
 .md h4 { font-size: 15px; margin: 10px 0 6px; }
 .md strong { color: var(--ink); }
+.md li + li { margin-top: 4px; }
+.md li > ul, .md li > ol { margin: 4px 0 0; }
+.md h4:first-child { margin-top: 0; }
+.md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }
+.md blockquote { margin: 0 0 8px; padding: 2px 0 2px 12px; border-left: 3px solid var(--brand); color: var(--ink-2); }
+.md code { font-size: .9em; padding: 1px 5px; border-radius: 5px; background: var(--surface-3, var(--line)); }
+.md a { color: var(--brand); text-decoration: underline; text-underline-offset: 2px; }
+.md-table { overflow-x: auto; margin: 0 0 10px; border: 1px solid var(--line-2); border-radius: 10px; }
+.md-table table { border-collapse: collapse; width: 100%; font-size: 14px; line-height: 1.45; }
+.md-table th, .md-table td { padding: 7px 11px; text-align: left; vertical-align: top; overflow-wrap: normal; }
+.md-table th { font-weight: 600; color: var(--ink); background: var(--surface); border-bottom: 1px solid var(--line-2); white-space: nowrap; }
+.md-table tr + tr td { border-top: 1px solid var(--line); }
 .chat-empty { text-align: center; padding: 24px 8px; display: grid; gap: 8px; justify-items: center; }
 .chat-empty h2 { font-size: 22px; }
 .starters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; width: 100%; max-width: 640px; }

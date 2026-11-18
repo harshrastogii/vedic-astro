@@ -54,9 +54,11 @@ export function chartContext(profile, now = new Date()) {
       L.push(`Pratyantar dashas in current ${cur.mahadasha.lord}/${cur.antardasha.lord}:`);
       for (const pd of pratyantardashas(cur.antardasha)) {
         const mark = cur.pratyantar && pd.startDate.getTime() === cur.pratyantar.startDate.getTime() ? '  <- current' : '';
-        L.push(`  - ${pd.lord}: ${fmtDate(pd.startDate, tz)} to ${fmtDate(pd.endDate, tz)}${mark}`);
+        L.push(`  - ${cur.mahadasha.lord}/${cur.antardasha.lord}/${pd.lord}: ${fmtDate(pd.startDate, tz)} to ${fmtDate(pd.endDate, tz)}${mark}`);
       }
     }
+    const chain = [cur.mahadasha, cur.antardasha, cur.pratyantar].filter(Boolean);
+    L.push(`RUNNING NOW: ${chain.map((x) => x.lord).join('/')} (mahadasha/antardasha${cur.pratyantar ? '/pratyantar' : ''}), ${chain.map((x, i) => `${['mahadasha', 'antardasha', 'pratyantar'][i]} ends ${fmtDate(x.endDate, tz)}`).join(', ')}`);
   }
   L.push('');
 
