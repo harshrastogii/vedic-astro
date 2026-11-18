@@ -10,7 +10,7 @@ import PageHead from '../components/PageHead.jsx';
 import { NeedProfile } from '../components/Common.jsx';
 import ReportGlyph from '../components/ReportIcon.jsx';
 import Markdown from '../components/Markdown.jsx';
-import { CheckIcon, SparkIcon, ChatIcon, ArrowRightIcon } from '../components/Icons.jsx';
+import { CheckIcon, ChatIcon, ArrowRightIcon } from '../components/Icons.jsx';
 
 export default function ReportPage() {
   const { type } = useParams();
@@ -129,7 +129,7 @@ function AiReading({ report, profile }) {
   return (
     <section className="card">
       <div className="card-head">
-        <h2><span className="ic"><SparkIcon /></span>Written reading</h2>
+        <h2>Written reading</h2>
         {saved && !busy && <button className="btn ghost small" onClick={generate}>Rewrite</button>}
       </div>
       {!user && (
@@ -141,7 +141,7 @@ function AiReading({ report, profile }) {
       {user && !body && !busy && (
         <div style={{ display: 'grid', gap: 10 }}>
           <p className="muted">The AI astrologer explains the results above in plain language, using only what was calculated.</p>
-          <button className="btn small" style={{ justifySelf: 'start' }} onClick={generate}><SparkIcon />Write my reading</button>
+          <button className="btn small" style={{ justifySelf: 'start' }} onClick={generate}>Write my reading</button>
         </div>
       )}
       {busy && !text && <p className="muted"><span className="typing"><i /><i /><i /></span> Writing your reading… this can take up to a minute.</p>}

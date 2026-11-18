@@ -38,7 +38,6 @@ function Chat({ active, profiles }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [showList, setShowList] = useState(false);
-  const endRef = useRef(null);
   const abortRef = useRef(null);
   const askedRef = useRef(null);
   const inputRef = useRef(null);
@@ -69,12 +68,27 @@ function Chat({ active, profiles }) {
     return () => { cancelled = true; };
   }, [convId]);
 
-  // Keep the newest message in view by scrolling the message panel itself
-  // (scrollIntoView would also scroll the whole page on phones).
+  // Only the message panel scrolls on this page. While the chat is open the
+  // page itself is locked, so on phones a swipe always moves the messages
+  // instead of first nudging the page or Safari's toolbar.
   useEffect(() => {
-    if (!messages.length && streaming === null) return;
-    const box = endRef.current?.closest('.chat-scroll');
-    if (box) box.scrollTop = box.scrollHeight;
+    document.documentElement.classList.add('chat-lock');
+    return () => document.documentElement.classList.remove('chat-lock');
+  }, []);
+
+  // Follow new text to the bottom only while the reader is already at the
+  // bottom. Scrolling up to re-read is never pulled back down mid-answer.
+  const scrollRef = useRef(null);
+  const stickRef = useRef(true);
+  const onScroll = () => {
+    const el = scrollRef.current;
+    if (el) stickRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+  };
+  useEffect(() => { stickRef.current = true; }, [convId]);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || (!messages.length && streaming === null)) return;
+    if (stickRef.current) el.scrollTop = el.scrollHeight;
   }, [messages, streaming]);
 
   // A question passed in the link (from the dashboard or chart page) starts a new chat.
@@ -92,6 +106,7 @@ function Chat({ active, profiles }) {
     const q = text.trim();
     if (!q || busy) return;
     setBusy(true); setError(''); setDraft('');
+    stickRef.current = true;
 
     let id = fresh ? null : convId;
     let profileForChat = id ? convProfile : active;
@@ -137,13 +152,14 @@ function Chat({ active, profiles }) {
         full += dec.decode(value, { stream: true });
         setStreaming(full);
       }
-      setStreaming(null);
+      // Keep showing the streamed text until the saved message replaces it.
       if (!full.trim()) throw new Error('The AI returned an empty answer. The free model may be busy; please try again.');
 
       const { data: am, error: e2 } = await supabase.from('messages')
         .insert({ conversation_id: id, role: 'assistant', content: full }).select('id, role, content, created_at').single();
       if (e2) throw e2;
       setMessages((m) => [...m, am]);
+      setStreaming(null);
       const now = new Date().toISOString();
       await supabase.from('conversations').update({ updated_at: now }).eq('id', id);
       setConvs((list) => [{ ...list.find((c) => c.id === id), updated_at: now }, ...list.filter((c) => c.id !== id)]);
@@ -191,7 +207,7 @@ function Chat({ active, profiles }) {
           <div className="small muted">About <strong style={{ color: 'var(--ink)' }}>{(conv ? convProfile : active).name}</strong>’s chart</div>
         </div>
 
-        <div className="chat-scroll">
+        <div className="chat-scroll" ref={scrollRef} onScroll={onScroll}>
           {messages.length === 0 && streaming === null && (
             <div className="chat-empty">
               <h2>Ask anything about {active.name.split(' ')[0]}’s chart</h2>
@@ -206,11 +222,8 @@ function Chat({ active, profiles }) {
               {m.role === 'assistant' ? <Markdown text={m.content} /> : m.content}
             </div>
           ))}
-          {streaming !== null && (
-            <div className="bubble assistant">{streaming ? <Markdown text={streaming} /> : <span className="typing"><i /><i /><i /></span>}</div>
-          )}
-          {busy && streaming === null && messages.at(-1)?.role === 'user' && (
-            <div className="bubble assistant"><span className="typing"><i /><i /><i /></span></div>
+          {(streaming !== null || (busy && messages.at(-1)?.role === 'user')) && (
+            <div className="bubble assistant live">{streaming ? <Markdown text={streaming} /> : <span className="typing" aria-label="Writing an answer"><i /><i /><i /></span>}</div>
           )}
           {error && (
             <div className="pill bad" style={{ whiteSpace: 'normal', justifySelf: 'start' }}>
@@ -218,7 +231,6 @@ function Chat({ active, profiles }) {
               {needsRetry && !busy && <button className="btn ghost small" style={{ marginLeft: 8 }} onClick={() => resend(lastUser.content)}>Retry</button>}
             </div>
           )}
-          <div ref={endRef} />
         </div>
 
         <form className="chat-input" onSubmit={(e) => { e.preventDefault(); send(draft); }}>

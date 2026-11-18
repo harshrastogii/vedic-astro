@@ -11,7 +11,7 @@ import { NorthChart } from '../components/Charts.jsx';
 import { PlanetDot } from '../components/Common.jsx';
 import { SignGlyph } from '../components/Astro.jsx';
 import {
-  SparkIcon, ChatIcon, ArrowUpIcon, ArrowRightIcon, CompassIcon, TimerIcon, BriefcaseIcon, PinIcon,
+  ChatIcon, ArrowUpIcon, ArrowRightIcon, CompassIcon, TimerIcon, BriefcaseIcon, PinIcon,
 } from '../components/Icons.jsx';
 
 const RISING_NOTE = [
@@ -36,7 +36,7 @@ export default function Home() {
     return (
       <>
         <section className="hero">
-          <span className="tag"><SparkIcon />Free Vedic astrology</span>
+          <span className="tag">Free Vedic astrology</span>
           <h2>Your birth chart, dasha and panchang in one place</h2>
           <p className="lead">Enter birth details once. Every calculation runs in your browser, and nothing is locked behind a paywall.</p>
         </section>
@@ -92,12 +92,12 @@ function Dashboard({ profile }) {
       <div className="dash">
         <div className="col">
           <section className="hero">
-            <span className="tag"><SparkIcon />AI Vedic Astrologer</span>
+            <span className="tag">Ask about your chart</span>
             <h2>Your rising sign is {RASHIS[asc]}. It {RISING_NOTE[asc]}</h2>
             {lastConv && (
               <Link to={`/chat?c=${lastConv.id}`} className="resume">
                 <ChatIcon />
-                <span><span className="k">continue your last conversation…</span><br /><span className="q">{lastConv.title}</span></span>
+                <span><span className="k">Continue where you left off</span><br /><span className="q">{lastConv.title}</span></span>
               </Link>
             )}
             <form className="ask-box" onSubmit={(e) => { e.preventDefault(); ask(q); }}>

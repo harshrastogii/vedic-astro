@@ -12,7 +12,7 @@
   --ink-3: #71717a;
   --line: rgba(255, 255, 255, 0.06);
   --line-2: rgba(255, 255, 255, 0.12);
-  --card-border: #f3f4f6;
+  --card-border: rgba(255, 255, 255, 0.09);
   --brand: #d25120;
   --brand-hover: #e0612e;
   --brand-ink: #ffffff;
@@ -30,9 +30,9 @@
   --warn: #fb923c;
   --warn-soft: rgba(124, 45, 18, 0.35);
   --neutral-soft: rgba(255, 255, 255, 0.05);
-  --hero-grad: radial-gradient(120% 140% at 0% 0%, rgba(210, 81, 32, 0.28) 0%, rgba(120, 53, 15, 0.18) 45%, rgba(24, 24, 27, 0.9) 100%);
-  --hero-grad-2: linear-gradient(135deg, rgba(120, 72, 20, 0.32) 0%, rgba(24, 24, 27, 0.95) 70%);
-  --radius: 24px;
+  --hero-grad: linear-gradient(180deg, rgba(210, 81, 32, 0.09) 0%, rgba(210, 81, 32, 0) 55%), #18181b;
+  --hero-grad-2: linear-gradient(180deg, rgba(245, 158, 11, 0.07) 0%, rgba(245, 158, 11, 0) 55%), #18181b;
+  --radius: 20px;
   --radius-md: 16px;
   --radius-sm: 12px;
   color-scheme: dark;
@@ -48,7 +48,7 @@
   --ink-3: #8b8b94;
   --line: rgba(24, 24, 27, 0.07);
   --line-2: rgba(24, 24, 27, 0.14);
-  --card-border: #e4e4e7;
+  --card-border: rgba(24, 24, 27, 0.09);
   --brand: #d25120;
   --brand-hover: #b9441a;
   --brand-soft: rgba(210, 81, 32, 0.1);
@@ -65,8 +65,8 @@
   --warn: #c2410c;
   --warn-soft: rgba(234, 88, 12, 0.1);
   --neutral-soft: rgba(24, 24, 27, 0.05);
-  --hero-grad: radial-gradient(120% 140% at 0% 0%, rgba(210, 81, 32, 0.16) 0%, rgba(245, 158, 11, 0.08) 45%, #ffffff 100%);
-  --hero-grad-2: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, #ffffff 70%);
+  --hero-grad: linear-gradient(180deg, rgba(210, 81, 32, 0.06) 0%, rgba(210, 81, 32, 0) 55%), #ffffff;
+  --hero-grad-2: linear-gradient(180deg, rgba(245, 158, 11, 0.07) 0%, rgba(245, 158, 11, 0) 55%), #ffffff;
   color-scheme: light;
 }
 
@@ -157,7 +157,7 @@ p { margin: 0; }
 @media (max-width: 560px) { .page-head h1 { font-size: 28px; } }
 .profile-pill {
   display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px 4px 4px; border-radius: 999px;
-  background: var(--surface-2); color: var(--brand); font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  background: var(--surface-2); color: var(--ink); font-size: 13px; font-weight: 600;
   border: 0; cursor: pointer; position: relative;
 }
 .profile-pill .dot { width: 22px; height: 22px; border-radius: 999px; background: var(--brand); color: #fff; display: grid; place-items: center; font-size: 11px; }
@@ -184,14 +184,14 @@ a.card:hover .card-head > svg { color: var(--brand); transform: translateX(2px);
 .dash { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; align-items: start; }
 .dash > .col { display: grid; gap: 24px; min-width: 0; }
 @media (max-width: 1000px) { .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .split, .dash { grid-template-columns: 1fr; } }
-@media (max-width: 760px) { .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 16px; } .card { padding: 18px; border-radius: 20px; } }
+@media (max-width: 760px) { .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 16px; } .card { padding: 18px; border-radius: 18px; } }
 @media (max-width: 420px) { .grid-4 { grid-template-columns: 1fr 1fr; gap: 10px; } }
 
-.hero { position: relative; overflow: hidden; border-radius: var(--radius); border: 1px solid var(--line-2); background: var(--hero-grad); padding: 28px; display: grid; gap: 18px; }
+.hero { position: relative; overflow: hidden; border-radius: var(--radius); border: 1px solid var(--card-border); background: var(--hero-grad); padding: 28px; display: grid; gap: 18px; }
 .hero.amber { background: var(--hero-grad-2); }
 .hero h2 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
 .hero .lead { font-size: 17px; color: var(--ink-2); line-height: 1.6; }
-.tag { display: inline-flex; align-items: center; gap: 8px; justify-self: start; padding: 6px 14px; border-radius: 999px; border: 1px solid rgba(210, 81, 32, .35); background: var(--brand-soft); color: var(--brand); font-weight: 600; font-size: 14px; }
+.tag { display: inline-flex; align-items: center; gap: 8px; justify-self: start; color: var(--brand); font-weight: 600; font-size: 13.5px; }
 .tag svg { width: 16px; height: 16px; }
 .greet .date { color: var(--ink-2); font-size: 15px; }
 .greet h1 { font-size: 34px; font-weight: 700; margin-top: 2px; }
@@ -208,10 +208,10 @@ a.card:hover .card-head > svg { color: var(--brand); transform: translateX(2px);
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   height: 44px; padding: 0 20px; border-radius: var(--radius-sm); border: 1px solid transparent;
-  background: var(--brand); color: var(--brand-ink); font-weight: 700; cursor: pointer; transition: background .15s, transform .1s; white-space: nowrap;
+  background: var(--brand); color: var(--brand-ink); font-weight: 700; cursor: pointer; transition: background-color .16s var(--ease-out), border-color .16s var(--ease-out), transform .16s var(--ease-out); white-space: nowrap;
 }
 .btn:hover { background: var(--brand-hover); }
-.btn:active { transform: translateY(1px); }
+.btn:active:not(:disabled) { transform: scale(.97); }
 .btn:disabled { opacity: .5; cursor: default; }
 .btn.ghost { background: var(--surface-2); color: var(--ink); border-color: var(--line-2); }
 .btn.ghost:hover { background: var(--surface-3); }
@@ -364,7 +364,7 @@ table.t td.cx { white-space: normal; }
 .pd-list { padding: 4px 0 6px 22px; display: grid; gap: 2px; font-size: 13px; color: var(--ink-2); }
 .pd-list div { display: flex; justify-content: space-between; gap: 12px; padding: 4px 10px; border-radius: 6px; }
 .pd-list div.current { color: var(--brand); font-weight: 700; background: var(--surface-3); }
-.chev { width: 18px; height: 18px; color: var(--ink-3); transition: transform .2s; }
+.chev { width: 18px; height: 18px; color: var(--ink-3); transition: transform .25s var(--ease-out); }
 .open > button .chev { transform: rotate(180deg); }
 
 /* ===================================================================
@@ -431,7 +431,9 @@ table.t td.cx { white-space: normal; }
 .chat-main { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
 .chat-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 18px; border-bottom: 1px solid var(--line); }
 .chat-list-toggle { display: none; }
-.chat-scroll { flex: 1; overflow: auto; padding: 20px; display: grid; gap: 14px; align-content: start; }
+.chat-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.chat-scroll > .bubble.user { align-self: flex-end; }
+.chat-scroll > .bubble.assistant, .chat-scroll > .pill { align-self: flex-start; }
 .bubble { max-width: 82%; padding: 12px 16px; border-radius: 18px; font-size: 15px; line-height: 1.65; overflow-wrap: anywhere; }
 .bubble.user { justify-self: end; background: var(--brand); color: #fff; border-bottom-right-radius: 6px; white-space: pre-wrap; }
 .bubble.assistant { justify-self: start; background: var(--surface-2); border: 1px solid var(--line-2); border-bottom-left-radius: 6px; }
@@ -461,9 +463,9 @@ table.t td.cx { white-space: normal; }
 .chat-input textarea { height: 46px; min-height: 46px; max-height: 160px; padding: 11px 14px; line-height: 22px; resize: none; overflow-y: auto; }
 .chat-input .btn { height: 46px; flex: none; }
 .typing { display: inline-flex; gap: 4px; }
-.typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); animation: blink 1.2s infinite; }
+.typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); animation: blink 1.2s ease-in-out infinite; }
 .typing i:nth-child(2) { animation-delay: .2s; } .typing i:nth-child(3) { animation-delay: .4s; }
-@keyframes blink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
+@keyframes blink { 0%, 80%, 100% { opacity: .3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-2px); } }
 @media (prefers-reduced-motion: reduce) { .typing i { animation: none; opacity: .6; } }
 @media (max-width: 900px) {
   .chat-shell { grid-template-columns: 1fr; height: calc(100dvh - 65px - 40px); position: relative; }
@@ -475,8 +477,10 @@ table.t td.cx { white-space: normal; }
 }
 @media (max-width: 760px) {
   /* Phones: the chat fills the screen; answers use the full width. */
-  .page.page-chat { padding: 10px 10px max(10px, env(safe-area-inset-bottom)); gap: 0; }
-  .page-chat .chat-shell { height: calc(100dvh - 65px - 20px - env(safe-area-inset-bottom)); min-height: 380px; }
+  /* The page itself never scrolls here; only the message list does. */
+  html.chat-lock, html.chat-lock body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+  .page.page-chat { height: calc(100dvh - 65px); display: flex; flex-direction: column; padding: 10px 10px max(10px, env(safe-area-inset-bottom)); gap: 0; }
+  .page-chat .chat-shell { flex: 1; min-height: 0; height: auto; }
   .page-chat .chat-main { border-radius: 18px; }
   .chat-head { padding: 10px 12px; }
   .chat-head > :last-child { font-size: 13px; text-align: right; min-width: 0; }
@@ -604,4 +608,56 @@ a, button, select, input, textarea, [role=button] { -webkit-tap-highlight-color:
   table.t.stack td { border: 0; padding: 2px 0; white-space: normal; min-width: 0; }
   table.t.stack td.c0 { font-size: 15px; padding-bottom: 6px; }
   table.t.stack td.cx[data-label]:not([data-label=""])::before { content: attr(data-label); display: block; font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); margin-top: 6px; }
+}
+
+/* ===================================================================
+   Motion: short, quiet and interruptible. Things fade and rise a few
+   pixels into place; nothing bounces or slides across the screen.
+   =================================================================== */
+:root { --ease-out: cubic-bezier(.23, 1, .32, 1); }
+@keyframes enter { from { opacity: 0; transform: translateY(6px); } }
+@keyframes pop { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
+@keyframes fade { from { opacity: 0; } }
+
+/* A new page settles in, top sections a beat before the rest. */
+.page > * { animation: enter .32s var(--ease-out) backwards; }
+.page > *:nth-child(2) { animation-delay: .03s; }
+.page > *:nth-child(3) { animation-delay: .06s; }
+.page > *:nth-child(n+4) { animation-delay: .09s; }
+.page-chat > * { animation: fade .2s ease-out backwards; }
+
+/* Menus and drop-downs grow from where they were opened. */
+.user-pop { transform-origin: top right; animation: pop .18s var(--ease-out); }
+.mobile-menu { transform-origin: top center; animation: pop .2s var(--ease-out); }
+.picker-list { transform-origin: top center; animation: pop .16s var(--ease-out); }
+.chat-list.open { transform-origin: top center; animation: pop .18s var(--ease-out); }
+
+/* Expanding a dasha shows its sub-periods without a jump. */
+.sub-list, .pd-list { animation: enter .24s var(--ease-out); }
+
+/* Each chat message eases in as it arrives. (A finished answer replaces the
+   live one in place, so it must not fade in a second time.) */
+.bubble.user, .bubble.live, .chat-empty { animation: enter .26s var(--ease-out) backwards; }
+
+/* Calm hover and press feedback. */
+.card, .report-card, .chip, .starter, .dasha-row > button, .sub-item, .chat-item, .navlinks a, .seg button, .icon-btn, .round-btn {
+  transition: background-color .18s var(--ease-out), border-color .18s var(--ease-out), color .18s var(--ease-out), transform .18s var(--ease-out);
+}
+.chip:active, .starter:active, .icon-btn:active, .round-btn:active { transform: scale(.97); }
+a.card:active { transform: scale(.99); }
+/* Phones have no hover; don't leave a "hovered" look stuck after a tap. */
+@media (hover: none) {
+  .chip:hover { border-color: var(--line-2); }
+  .starter:hover { border-color: var(--line-2); background: var(--surface-2); }
+  .btn:hover { background: var(--brand); }
+  .btn.ghost:hover { background: var(--surface-2); }
+  a.card:hover .card-head > svg { transform: none; color: var(--ink-3); }
+  .report-card:hover { transform: none; border-color: var(--card-border); }
+}
+
+/* Switching light/dark cross-fades instead of flashing. */
+html.theme-fade, html.theme-fade * { transition: background-color .3s ease, border-color .3s ease, color .3s ease, fill .3s ease, stroke .3s ease !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
 }
