@@ -3,9 +3,10 @@ import { useAuth } from '../lib/auth.jsx';
 import { useProfiles } from '../lib/store.jsx';
 import SignInCard from '../components/SignInCard.jsx';
 import PageHead from '../components/PageHead.jsx';
+import FamilyAccess from '../components/FamilyAccess.jsx';
 
 export default function AccountPage() {
-  const { ready, user, displayName, avatarUrl, githubLogin, signOut } = useAuth();
+  const { ready, user, displayName, avatarUrl, githubLogin, provider, signOut } = useAuth();
   const { profiles, error, clearError } = useProfiles();
   if (!ready) return <div className="card">Loading…</div>;
   if (!user) {
@@ -18,7 +19,9 @@ export default function AccountPage() {
         {avatarUrl ? <img src={avatarUrl} alt="" width="56" height="56" style={{ borderRadius: 16 }} /> : <span className="avatar">{displayName.slice(0, 1)}</span>}
         <div style={{ flex: 1, minWidth: 0 }}>
           <h2 style={{ fontSize: 18 }}>{displayName}</h2>
-          <div className="small muted">{githubLogin ? `GitHub · @${githubLogin}` : user.email}</div>
+          <div className="small muted" style={{ overflowWrap: 'anywhere' }}>
+            {provider === 'github' && githubLogin ? `GitHub · @${githubLogin}` : `${provider === 'google' ? 'Google · ' : ''}${user.email || ''}`}
+          </div>
         </div>
         <button className="btn ghost small" onClick={signOut}>Sign out</button>
       </section>
@@ -39,6 +42,7 @@ export default function AccountPage() {
           </div>
         </Link>
       </section>
+      <FamilyAccess />
     </>
   );
 }

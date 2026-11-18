@@ -22,12 +22,16 @@ export function AuthProvider({ children }) {
       session,
       user,
       displayName: meta.full_name || meta.name || meta.user_name || user?.email || '',
-      avatarUrl: meta.avatar_url || '',
+      avatarUrl: meta.avatar_url || meta.picture || '',
       githubLogin: meta.user_name || meta.preferred_username || '',
-      async signIn() {
+      provider: user?.app_metadata?.provider || '',
+      async signIn(provider = 'google') {
         const { error } = await supabase.auth.signInWithOAuth({
-          provider: 'github',
-          options: { redirectTo: `${window.location.origin}${BASE}account` },
+          provider,
+          options: {
+            redirectTo: `${window.location.origin}${BASE}account`,
+            ...(provider === 'google' ? { queryParams: { prompt: 'select_account' } } : {}),
+          },
         });
         if (error) throw error;
       },

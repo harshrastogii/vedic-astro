@@ -361,6 +361,15 @@ table.t tr:last-child td { border-bottom: 0; }
 .now-ring { outline: 2px solid var(--brand); outline-offset: 1px; }
 .empty { text-align: center; padding: 48px 20px; display: grid; gap: 14px; justify-items: center; }
 .empty > svg { width: 120px; height: 120px; color: var(--brand); opacity: .7; }
+.signin-buttons { display: grid; gap: 10px; width: min(100%, 300px); }
+.signin-buttons .btn { justify-content: center; }
+.signin-buttons .btn svg { width: 18px; height: 18px; flex: none; }
+.btn.google { background: #fff; color: #1f1f1f; border: 1px solid #dadce0; }
+.btn.google:hover { background: #f8f9fa; }
+.family-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.family-row:first-child { border-top: 0; }
+.family-add { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; }
+@media (max-width: 640px) { .family-add { grid-template-columns: 1fr; } }
 .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .score-ring { width: 150px; height: 150px; flex: none; }
 .list-reset { list-style: none; margin: 0; padding: 0; }

@@ -1,5 +1,6 @@
 // Chat endpoint for Vedic Astro, deployed on Vercel.
-// - Verifies the caller's Supabase login and only answers allow-listed GitHub accounts.
+// - Verifies the caller's Supabase login and only answers the owner and family
+//   members added in the app (Account → Family access).
 // - Calls a free model through Vercel AI Gateway. On Vercel the gateway is
 //   authenticated automatically (OIDC), so no API key is stored anywhere.
 // - Streams plain text back. The browser saves the conversation in Supabase.
@@ -40,6 +41,18 @@ async function getUser(token) {
   });
   if (!res.ok) return null;
   return res.json();
+}
+
+// Family access list lives in Supabase (chat_members / app_admins). The
+// can_chat() function answers for the signed-in caller only.
+async function canChat(token) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/can_chat`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: '{}',
+  });
+  if (!res.ok) { console.error('can_chat failed', res.status); return false; }
+  return (await res.json()) === true;
 }
 
 function githubId(user) {
@@ -99,8 +112,12 @@ export async function POST(request) {
 
   const user = await getUser(token);
   if (!user) return json(request, 401, { error: 'Your session has expired. Please sign in again.' });
-  if (ALLOWED_GITHUB_IDS.length && !ALLOWED_GITHUB_IDS.includes(githubId(user))) {
-    return json(request, 403, { error: 'Chat is not enabled for this account.' });
+  const allowed = ALLOWED_GITHUB_IDS.includes(githubId(user)) || await canChat(token);
+  if (!allowed) {
+    return json(request, 403, {
+      error: `AI chat isn't switched on for ${user.email || 'this account'} yet. Ask the site owner to add this email under Account → Family access.`,
+      code: 'not_member',
+    });
   }
 
   let body;
